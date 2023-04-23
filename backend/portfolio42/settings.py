@@ -80,7 +80,7 @@ DATABASES = {
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': 'postgresql-docker',
-        'PORT': 5432,
+        'PORT': os.environ.get('POSTGRES_HOST_PORT'),
     }
 }
 
