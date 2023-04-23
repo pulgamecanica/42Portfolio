@@ -26,7 +26,7 @@ jobs:
       run: |
         cd backend
         python3 -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r requirements.txt --force-reinstall
     - name: Run Tests
       run: |
         cd backend
