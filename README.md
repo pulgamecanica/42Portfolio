@@ -41,6 +41,14 @@ git clone https://github.com/pulgamecanica/42Portfolio
 docker compose up
 ```
 
+Make sure you've installed all the modules needed for the project.
+We recommend you run a new virtual environment for developing:
+
+```bash
+pipenv shell
+pip install -r requirements.txt
+```
+
 > If you want to work on the frontend you need to start the react app:
 
 ```bash
