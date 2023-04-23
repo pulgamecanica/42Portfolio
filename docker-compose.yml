@@ -14,12 +14,12 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   backend:
-    build: .
+    build: backend/.
     container_name: django-docker
     restart: on-failure
     networks:
       - database-network
-    command: python manage.py runserver 0.0.0.0:${BACKEND_PORT}
+    command: python backend/manage.py runserver 0.0.0.0:${BACKEND_PORT}
     volumes:
       - .:/code
     ports:
