@@ -26,8 +26,8 @@ jobs:
       run: |
         cd backend
         python3 -m pip install --upgrade pip
-        pip install -r requirements.txt --force-reinstall
+        pip install -r requirements.txt
     - name: Run Tests
       run: |
         cd backend
-        python3 manage.py test
+        python3 manage.py test --settings=portfolio42.unittest_settings
