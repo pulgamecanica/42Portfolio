@@ -33,6 +33,8 @@
 git clone https://github.com/pulgamecanica/42Portfolio
 ```
 
+> Create a __.env__ file and fill the variables according to the .env.example 
+>
 > Then run the Docker containers for the DataBase and Django App
 
 ```bash
