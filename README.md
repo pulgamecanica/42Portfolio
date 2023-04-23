@@ -1,4 +1,7 @@
 # 42Portfolio
+
+[![Django CI](https://github.com/pulgamecanica/42Portfolio/actions/workflows/django.yml/badge.svg?branch=main)](https://github.com/pulgamecanica/42Portfolio/actions/workflows/django.yml)
+
 > 42 Portfolio Source Code Built with Django and React
 >
 > ![](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=306998) ![](https://img.shields.io/badge/Django-092e20?style=for-the-badge&logo=django&logoColor=white) ![](https://img.shields.io/badge/React-61DBFB?style=for-the-badge&logo=react&logoColor=white) ![](https://img.shields.io/badge/Docker-eee?style=for-the-badge&logo=docker&logoColor=0db7ed) ![](https://img.shields.io/badge/PostgreSQL-eee?style=for-the-badge&logo=postgresql&logoColor=0064a5)
