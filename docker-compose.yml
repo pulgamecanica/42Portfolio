@@ -3,6 +3,7 @@ services:
     image: postgres
     container_name: postgresql-docker
     restart: on-failure
+    command: -p ${POSTGRES_HOST_PORT}
     networks:
       - database-network
     volumes:
