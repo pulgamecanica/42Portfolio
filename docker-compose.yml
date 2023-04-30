@@ -3,6 +3,7 @@ services:
     image: postgres
     container_name: postgresql-docker
     restart: on-failure
+    command: -p ${POSTGRES_HOST_PORT}
     networks:
       - database-network
     volumes:
@@ -14,14 +15,16 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
   backend:
-    build: backend/.
+    build:
+      context: backend
+      dockerfile: Dockerfile
     container_name: django-docker
     restart: on-failure
     networks:
       - database-network
-    command: python backend/manage.py runserver 0.0.0.0:${BACKEND_PORT}
+    command: python manage.py runserver 0.0.0.0:${BACKEND_PORT}
     volumes:
-      - .:/code
+      - ./backend:/code
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     environment:
