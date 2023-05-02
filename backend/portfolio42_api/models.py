@@ -11,7 +11,7 @@ class User(AbstractUser):
 	last_name = models.CharField(max_length=50)
 	email = models.EmailField(max_length=130)
 	intra_url = models.CharField(max_length=200);
-	image_url = models.CharField();
+	image_url = models.CharField(max_length=800);
 	bio = models.TextField(max_length=800)
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 	is_admin = models.BooleanField(default=False)
