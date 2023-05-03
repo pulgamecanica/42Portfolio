@@ -36,7 +36,22 @@ class Cursus(models.Model):
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 	def __str__(self):
-		return f"cursus: {self.name}"
+		return f"{self.name}:{self.intra_id}"
+
+	def was_updated_today(self):
+		return self.updated_at > date.yesterday()
+
+# Project model
+class Project(models.Model):
+	intra_id = models.IntegerField(unique=True, db_index=True)
+	name = models.CharField(max_length=50)
+	description = models.TextField(max_length=2000)
+	exam = models.BooleanField(default=False)
+	solo = models.BooleanField(default=True)
+	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+	
+	def __str__(self):
+		return f"{self.name}:{self.intra_id}"
 
 	def was_updated_today(self):
 		return self.updated_at > date.yesterday()
