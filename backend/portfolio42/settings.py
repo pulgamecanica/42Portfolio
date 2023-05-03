@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-o2l8i5t-b+5uq=&nux^ee)7z5rpq2xd#6sh@t)i+5*dq8eo4x(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
 # Application definition
 
@@ -102,6 +101,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Define User Model
+AUTH_USER_MODEL = "portfolio42_api.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

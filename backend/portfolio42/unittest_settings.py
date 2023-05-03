@@ -99,6 +99,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Define User Model
+AUTH_USER_MODEL = "portfolio42_api.User"
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
