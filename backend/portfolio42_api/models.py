@@ -71,6 +71,15 @@ class Skill(models.Model):
 ## Relations
 # These are supposed to link the rest of the models together
 
+class ProjectUser(models.Model):
+	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
+	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+	grade = models.IntegerField()
+	finished = models.BooleanField(default=False)
+	finished_at = models.DateTimeField()
+	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+
+
 # Creates relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
