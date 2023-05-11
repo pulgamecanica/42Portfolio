@@ -67,3 +67,11 @@ class Skill(models.Model):
 
 	def was_updated_today(self):
 		return self.updated_at > date.yesterday()
+
+## Relations
+# These are supposed to link the rest of the models together
+
+# Creates relation between a project and a cursus, it relates which projects are in a cursus
+class ProjectCursus(models.Model):
+	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
+	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
