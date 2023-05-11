@@ -75,6 +75,7 @@ class Skill(models.Model):
 class ProjectUser(models.Model):
 	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
 	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+	intra_id = models.IntegerField(unique=True, db_index=True)
 	grade = models.IntegerField()
 	finished = models.BooleanField(default=False)
 	finished_at = models.DateTimeField()
