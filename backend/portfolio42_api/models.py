@@ -71,6 +71,7 @@ class Skill(models.Model):
 ## Relations
 # These are supposed to link the rest of the models together
 
+# This is a project that a user has subscribed to
 class ProjectUser(models.Model):
 	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
 	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -79,8 +80,7 @@ class ProjectUser(models.Model):
 	finished_at = models.DateTimeField()
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
-
-# Creates relation between a project and a cursus, it relates which projects are in a cursus
+# Creates a relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
 	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -89,3 +89,8 @@ class ProjectCursus(models.Model):
 class CursusSkill(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
 	id_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+
+# Creates a relation between ProjectUser and Cursus, it relates which project users are part of which cursus
+class ProjectUserCursus(models.Model):
+	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
+	id_project_user = models.ForeignKey(ProjectUser, on_delete=models.CASCADE)
