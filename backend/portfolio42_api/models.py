@@ -75,3 +75,8 @@ class Skill(models.Model):
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
 	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+
+# Creates a relation between a skill and a cursus, it relates which skills are part of a cursus
+class CursusSkill(models.Model):
+	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
+	id_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
