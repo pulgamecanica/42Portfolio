@@ -102,3 +102,9 @@ class CursusSkill(models.Model):
 class ProjectUserCursus(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
 	id_project_user = models.ForeignKey(ProjectUser, on_delete=models.CASCADE)
+
+# Creates a relation between a cursus skill and a cursus user
+class CursusUserSkill(models.Model):
+	id_cursus_skill = models.ForeignKey(CursusSkill, on_delete=models.CASCADE)
+	id_cursus_user = models.ForeignKey(CursusUser, on_delete=models.CASCADE)
+	level = models.FloatField()
