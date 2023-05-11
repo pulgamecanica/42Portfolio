@@ -80,6 +80,14 @@ class ProjectUser(models.Model):
 	finished_at = models.DateTimeField()
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
+# This is a cursus a user is enrolled in
+class CursusUser(models.Model):
+	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
+	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
+	level = models.FloatField()
+	intra_id = models.IntegerField(unique=True, db_index=True)
+	begin_at = models.DateField()
+
 # Creates a relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
