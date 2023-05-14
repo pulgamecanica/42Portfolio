@@ -37,6 +37,22 @@ services:
       - INTRA_SECRET=${INTRA_SECRET}
     depends_on:
       - db
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    container_name: react-docker
+    restart: on-failure
+    volumes:
+      - ./frontend:/app
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    depends_on:
+      - backend
+
 networks:
   database-network:
     driver: bridge
