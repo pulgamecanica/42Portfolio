@@ -6,11 +6,12 @@ WORKDIR /app
 # Copy app files
 COPY . /app/
 
+
 # ==== BUILD =====
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
-RUN npm ci
+# RUN npm ci
 
-ENV PORT=3000
+RUN npm install
 
 # Start the app
-CMD [ "npx", "run", "start" ]
+CMD [ "npm", "run", "start" ]

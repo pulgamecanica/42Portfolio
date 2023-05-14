@@ -49,7 +49,7 @@ services:
       - ${FRONTEND_PORT}:${FRONTEND_PORT}
     environment:
       - BACKEND_PORT=${BACKEND_PORT}
-      - FRONTEND_PORT=${FRONTEND_PORT}
+      - PORT=${FRONTEND_PORT}
     depends_on:
       - backend
 
