@@ -35,6 +35,9 @@ class Cursus(models.Model):
 	kind = models.CharField(max_length=50)
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
+	skills = models.ManyToManyField('Skill', through='CursusSkill')
+	users = models.ManyToManyField('User', through='CursusUser')
+
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
 
@@ -49,6 +52,9 @@ class Project(models.Model):
 	exam = models.BooleanField(default=False)
 	solo = models.BooleanField(default=True)
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+
+	users = models.ManyToManyField('User', through='ProjectUser')
+	projects = models.ManyToManyField('Project', through='ProjectCursus')
 	
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
@@ -73,39 +79,43 @@ class Skill(models.Model):
 
 # This is a project that a user has subscribed to
 class ProjectUser(models.Model):
-	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
-	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+	id_user = models.ForeignKey('User', on_delete=models.CASCADE)
+	id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
 	intra_id = models.IntegerField(unique=True, db_index=True)
 	grade = models.IntegerField()
 	finished = models.BooleanField(default=False)
 	finished_at = models.DateTimeField()
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
+	cursus = models.ManyToManyField('Cursus', through='ProjectUserCursus')
+
 # This is a cursus a user is enrolled in
 class CursusUser(models.Model):
-	id_user = models.ForeignKey(User, on_delete=models.CASCADE)
-	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
+	id_user = models.ForeignKey('User', on_delete=models.CASCADE)
+	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
 	level = models.FloatField()
 	intra_id = models.IntegerField(unique=True, db_index=True)
 	begin_at = models.DateField()
 
+	skills = models.ManyToManyField('CursusSkill', through='CursusUserSkill')
+
 # Creates a relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
-	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
-	id_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
+	id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
 # Creates a relation between a skill and a cursus, it relates which skills are part of a cursus
 class CursusSkill(models.Model):
-	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
-	id_skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
+	id_skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
 
 # Creates a relation between ProjectUser and Cursus, it relates which project users are part of which cursus
 class ProjectUserCursus(models.Model):
-	id_cursus = models.ForeignKey(Cursus, on_delete=models.CASCADE)
-	id_project_user = models.ForeignKey(ProjectUser, on_delete=models.CASCADE)
+	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
+	id_project_user = models.ForeignKey('ProjectUser', on_delete=models.CASCADE)
 
 # Creates a relation between a cursus skill and a cursus user
 class CursusUserSkill(models.Model):
-	id_cursus_skill = models.ForeignKey(CursusSkill, on_delete=models.CASCADE)
-	id_cursus_user = models.ForeignKey(CursusUser, on_delete=models.CASCADE)
+	id_cursus_skill = models.ForeignKey('CursusSkill', on_delete=models.CASCADE)
+	id_cursus_user = models.ForeignKey('CursusUser', on_delete=models.CASCADE)
 	level = models.FloatField()
