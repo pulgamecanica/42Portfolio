@@ -4,10 +4,24 @@ from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import AbstractUser
 
-# User model
-class User(AbstractUser):
-	intra_username = models.CharField(max_length=30, unique=True)
+class IntraBaseModel(models.Model):
 	intra_id = models.IntegerField(unique=True, db_index=True)
+	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+
+	class Meta:
+		abstract = True
+
+	def __str__(self):
+		return f"(intra id: ${self.intra_id}"
+
+	def was_updated_today(self):
+		return self.updated_at > date.yesterday()
+
+
+
+# User model
+class User(AbstractUser, IntraBaseModel):
+	intra_username = models.CharField(max_length=30, unique=True)
 	first_name = models.CharField(max_length=50)
 	last_name = models.CharField(max_length=50)
 	email = models.EmailField(max_length=130)
@@ -29,29 +43,19 @@ class User(AbstractUser):
 		return serialize('json', [self])[1:-1]
 
 # Cursus model
-class Cursus(models.Model):
-	intra_id = models.IntegerField(unique=True, db_index=True)
+class Cursus(IntraBaseModel):
 	name = models.CharField(max_length=50)
 	kind = models.CharField(max_length=50)
-	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 	skills = models.ManyToManyField('Skill', through='CursusSkill')
 	users = models.ManyToManyField('User', through='CursusUser')
 
-	def __str__(self):
-		return f"{self.name}:{self.intra_id}"
-
-	def was_updated_today(self):
-		return self.updated_at > date.yesterday()
-
 # Project model
-class Project(models.Model):
-	intra_id = models.IntegerField(unique=True, db_index=True)
+class Project(IntraBaseModel):
 	name = models.CharField(max_length=50)
 	description = models.TextField(max_length=2000)
 	exam = models.BooleanField(default=False)
 	solo = models.BooleanField(default=True)
-	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 	users = models.ManyToManyField('User', through='ProjectUser')
 	cursus = models.ManyToManyField('cursus', through='ProjectCursus')
@@ -63,10 +67,8 @@ class Project(models.Model):
 		return self.updated_at > date.yesterday()
 
 # Skill model
-class Skill(models.Model):
-	intra_id = models.IntegerField(unique=True, db_index=True)
+class Skill(IntraBaseModel):
 	name = models.CharField(max_length=100)
-	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
@@ -78,21 +80,18 @@ class Skill(models.Model):
 # These are supposed to link the rest of the models together
 
 # This is a project that a user has subscribed to
-class ProjectUser(models.Model):
+class ProjectUser(IntraBaseModel):
 	id_user = models.ForeignKey('User', on_delete=models.CASCADE)
 	id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
-	intra_id = models.IntegerField(unique=True, db_index=True)
 	grade = models.IntegerField()
 	finished = models.BooleanField(default=False)
 	finished_at = models.DateTimeField()
-	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 # This is a cursus a user is enrolled in
-class CursusUser(models.Model):
+class CursusUser(IntraBaseModel):
 	id_user = models.ForeignKey('User', on_delete=models.CASCADE)
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
 	level = models.FloatField()
-	intra_id = models.IntegerField(unique=True, db_index=True)
 	begin_at = models.DateField()
 
 	skills = models.ManyToManyField('CursusSkill', through='CursusUserSkill')
