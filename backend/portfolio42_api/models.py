@@ -54,7 +54,7 @@ class Project(models.Model):
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
 	users = models.ManyToManyField('User', through='ProjectUser')
-	projects = models.ManyToManyField('Project', through='ProjectCursus')
+	cursus = models.ManyToManyField('cursus', through='ProjectCursus')
 	
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
@@ -87,8 +87,6 @@ class ProjectUser(models.Model):
 	finished_at = models.DateTimeField()
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
-	cursus = models.ManyToManyField('Cursus', through='ProjectUserCursus')
-
 # This is a cursus a user is enrolled in
 class CursusUser(models.Model):
 	id_user = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -108,11 +106,6 @@ class ProjectCursus(models.Model):
 class CursusSkill(models.Model):
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
 	id_skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
-
-# Creates a relation between ProjectUser and Cursus, it relates which project users are part of which cursus
-class ProjectUserCursus(models.Model):
-	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
-	id_project_user = models.ForeignKey('ProjectUser', on_delete=models.CASCADE)
 
 # Creates a relation between a cursus skill and a cursus user
 class CursusUserSkill(models.Model):
