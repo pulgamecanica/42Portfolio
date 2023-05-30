@@ -16,6 +16,8 @@ class User(AbstractUser):
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 	is_admin = models.BooleanField(default=False)
 
+	cursus = models.ManyToManyField('Cursus', through='CursusUser', related_name='users')
+
 	REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url']
 	USERNAME_FIELD = "intra_username"
 
@@ -35,8 +37,7 @@ class Cursus(models.Model):
 	kind = models.CharField(max_length=50)
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
-	skills = models.ManyToManyField('Skill', through='CursusSkill')
-	users = models.ManyToManyField('User', through='CursusUser')
+	skills = models.ManyToManyField('Skill', through='CursusSkill', related_name='cursus')
 
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
@@ -53,8 +54,8 @@ class Project(models.Model):
 	solo = models.BooleanField(default=True)
 	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
-	users = models.ManyToManyField('User', through='ProjectUser')
-	cursus = models.ManyToManyField('cursus', through='ProjectCursus')
+	users = models.ManyToManyField('User', through='ProjectUser', related_name='projects')
+	cursus = models.ManyToManyField('cursus', through='ProjectCursus', related_name='projects')
 	
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
@@ -95,8 +96,6 @@ class CursusUser(models.Model):
 	intra_id = models.IntegerField(unique=True, db_index=True)
 	begin_at = models.DateField()
 
-	skills = models.ManyToManyField('CursusSkill', through='CursusUserSkill')
-
 # Creates a relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
@@ -106,6 +105,8 @@ class ProjectCursus(models.Model):
 class CursusSkill(models.Model):
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
 	id_skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
+
+	cursus_users = models.ManyToManyField('CursusUser', through='CursusUserSkill', related_name='skills')
 
 # Creates a relation between a cursus skill and a cursus user
 class CursusUserSkill(models.Model):
