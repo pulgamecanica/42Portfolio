@@ -27,17 +27,15 @@ class User(AbstractUser, IntraBaseModel):
 	email = models.EmailField(max_length=130)
 	intra_url = models.CharField(max_length=200)
 	image_url = models.CharField(max_length=800)
-	updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 	is_admin = models.BooleanField(default=False)
+
+	cursus = models.ManyToManyField('Cursus', through='CursusUser', related_name='users')
 
 	REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url']
 	USERNAME_FIELD = "intra_username"
 
 	def __str__(self):
 		return "@" + self.intra_username
-
-	def was_updated_today(self):
-		return self.updated_at > date.yesterday()
 
 	def serialize(self):
 		return serialize('json', [self])[1:-1]
@@ -47,8 +45,7 @@ class Cursus(IntraBaseModel):
 	name = models.CharField(max_length=50)
 	kind = models.CharField(max_length=50)
 
-	skills = models.ManyToManyField('Skill', through='CursusSkill')
-	users = models.ManyToManyField('User', through='CursusUser')
+	skills = models.ManyToManyField('Skill', through='CursusSkill', related_name='cursus')
 
 # Project model
 class Project(IntraBaseModel):
@@ -57,14 +54,11 @@ class Project(IntraBaseModel):
 	exam = models.BooleanField(default=False)
 	solo = models.BooleanField(default=True)
 
-	users = models.ManyToManyField('User', through='ProjectUser')
-	cursus = models.ManyToManyField('cursus', through='ProjectCursus')
+	users = models.ManyToManyField('User', through='ProjectUser', related_name='projects')
+	cursus = models.ManyToManyField('cursus', through='ProjectCursus', related_name='projects')
 	
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
-
-	def was_updated_today(self):
-		return self.updated_at > date.yesterday()
 
 # Skill model
 class Skill(IntraBaseModel):
@@ -72,9 +66,6 @@ class Skill(IntraBaseModel):
 
 	def __str__(self):
 		return f"{self.name}:{self.intra_id}"
-
-	def was_updated_today(self):
-		return self.updated_at > date.yesterday()
 
 ## Relations
 # These are supposed to link the rest of the models together
@@ -94,8 +85,6 @@ class CursusUser(IntraBaseModel):
 	level = models.FloatField()
 	begin_at = models.DateField()
 
-	skills = models.ManyToManyField('CursusSkill', through='CursusUserSkill')
-
 # Creates a relation between a project and a cursus, it relates which projects are in a cursus
 class ProjectCursus(models.Model):
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
@@ -105,6 +94,8 @@ class ProjectCursus(models.Model):
 class CursusSkill(models.Model):
 	id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
 	id_skill = models.ForeignKey('Skill', on_delete=models.CASCADE)
+
+	cursus_users = models.ManyToManyField('CursusUser', through='CursusUserSkill', related_name='skills')
 
 # Creates a relation between a cursus skill and a cursus user
 class CursusUserSkill(models.Model):
