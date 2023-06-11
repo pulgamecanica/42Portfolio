@@ -21,10 +21,21 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ['name', 'intra_id']
 
 class UserSerializer(serializers.ModelSerializer):
+    cursus = CursusSerializer(many=True, read_only=True)
     projects = ProjectSerializer(many=True, read_only=True)
     class Meta():
         model = User
-        fields = ['id', 'intra_id', 'intra_username', 'email', 'is_admin', 'projects']
+        fields = ['id',
+                  'intra_id',
+                  'intra_username',
+                  'first_name',
+                  'last_name',
+                  'email',
+                  'intra_url',
+                  'image_url',
+                  'cursus',
+                  'projects',
+                  'is_admin',]
 
 # ViewSets define the view behavior.
 class CursusViewSet(viewsets.ModelViewSet):
