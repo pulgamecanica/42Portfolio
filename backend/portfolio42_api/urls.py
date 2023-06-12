@@ -1,41 +1,9 @@
 from django.urls import path, include
 from portfolio42_api.models import Cursus, Project, Skill, User 
-from rest_framework import routers, serializers, viewsets
+from rest_framework import routers, viewsets
 from portfolio42_api import views
-
-
-# Serializers define the API representation.
-class CursusSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Cursus
-        fields = ['name', 'kind', 'intra_id']
-
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Project
-        fields = ['name', 'description', 'exam', 'solo', 'intra_id']
-
-class SkillSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Skill
-        fields = ['name', 'intra_id']
-
-class UserSerializer(serializers.ModelSerializer):
-    cursus = CursusSerializer(many=True, read_only=True)
-    projects = ProjectSerializer(many=True, read_only=True)
-    class Meta():
-        model = User
-        fields = ['id',
-                  'intra_id',
-                  'intra_username',
-                  'first_name',
-                  'last_name',
-                  'email',
-                  'intra_url',
-                  'image_url',
-                  'cursus',
-                  'projects',
-                  'is_admin',]
+# from serializers import ProjectSerializer, UserSerializer, SkillSerializer, CursusSerializer
+from portfolio42_api.serializers import *
 
 # ViewSets define the view behavior.
 class CursusViewSet(viewsets.ModelViewSet):
