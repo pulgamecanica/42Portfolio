@@ -1,15 +1,28 @@
 from rest_framework import serializers
-from portfolio42_api.models import User, Skill, Cursus, Project
+from portfolio42_api.models import User, Skill, Cursus, Project, CursusUser, CursusUserSkill
+
 class SkillSerializer(serializers.ModelSerializer):
     class Meta():
         model = Skill
-        fields = ['name', 'intra_id']
+        fields = ['id', 'name', 'intra_id']
+
+class CursusUserSkillSerializer(serializers.ModelSerializer):
+    skill = SkillSerializer(read_only=True, source='id_cursus_skill.id_skill')
+    class Meta():
+        model = CursusUserSkill
+        fields = ['id', 'level', 'skill']
 
 class CursusSerializer(serializers.ModelSerializer):
-    skills = SkillSerializer(many=True, read_only=True)
     class Meta():
         model = Cursus
-        fields = ['name', 'kind', 'intra_id', 'skills']
+        fields = ['id', 'name', 'kind']
+
+class CursusUserSerializer(serializers.ModelSerializer):
+    cursus = CursusSerializer(read_only=True, source='id_cursus')
+    skills = CursusUserSkillSerializer(many=True, read_only=True, source='cursususerskill_set')
+    class Meta():
+        model=CursusUser
+        fields = ['cursus', 'level', 'begin_at', 'skills']
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta():
@@ -17,8 +30,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['name', 'description', 'exam', 'solo', 'intra_id']
 
 class UserSerializer(serializers.ModelSerializer):
-    cursus = CursusSerializer(many=True, read_only=True)
+    # cursus = CursusSerializer(many=True, read_only=True)
     projects = ProjectSerializer(many=True, read_only=True)
+    cursus = CursusUserSerializer(many=True, read_only=True, source='cursususer_set')
     class Meta():
         model = User
         fields = ['id',
