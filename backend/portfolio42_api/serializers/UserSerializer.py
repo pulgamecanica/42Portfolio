@@ -15,11 +15,14 @@ class CursusSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'kind']
 
 class CursusUserSerializer(serializers.ModelSerializer):
-    cursus = CursusSerializer(read_only=True, source='id_cursus')
+    id = serializers.IntegerField(source='id_cursus.id')
+    intra_id = serializers.IntegerField(source='id_cursus.intra_id')
+    name = serializers.CharField(source='id_cursus.name')
+    kind = serializers.CharField(source='id_cursus.kind')
     skills = CursusUserSkillSerializer(many=True, read_only=True, source='cursususerskill_set')
     class Meta():
         model=CursusUser
-        fields = ['cursus', 'level', 'begin_at', 'skills']
+        fields = ['id', 'intra_id', 'name', 'level', 'kind', 'skills', 'begin_at']
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta():
