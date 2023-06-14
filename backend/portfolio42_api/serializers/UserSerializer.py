@@ -20,7 +20,7 @@ class CursusUserSerializer(serializers.ModelSerializer):
     kind = serializers.CharField(source='id_cursus.kind')
     skills = CursusUserSkillSerializer(many=True, read_only=True, source='cursususerskill_set')
     class Meta():
-        model=CursusUser
+        model = CursusUser
         fields = ['id',
                   'intra_id',
                   'name',

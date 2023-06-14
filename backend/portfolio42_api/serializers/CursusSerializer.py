@@ -4,7 +4,9 @@ from portfolio42_api.models import Cursus, Skill, CursusUser, Project
 class SkillSerializer(serializers.ModelSerializer):
     class Meta():
         model = Skill
-        fields = ['id', 'intra_id', 'name']
+        fields = ['id',
+                  'intra_id',
+                  'name']
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta():
