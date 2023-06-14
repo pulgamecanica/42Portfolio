@@ -7,10 +7,13 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'intra_id']
 
 class CursusUserSkillSerializer(serializers.ModelSerializer):
-    skill = SkillSerializer(read_only=True, source='id_cursus_skill.id_skill')
+    # skill = SkillSerializer(read_only=True, source='id_cursus_skill.id_skill')
+    skill_name = serializers.CharField(source='id_cursus_skill.id_skill.name')
+    skill_id = serializers.IntegerField(source='id_cursus_skill.id_skill.id')
+    skill_intra_id = serializers.IntegerField(source='id_cursus_skill.id_skill.intra_id')
     class Meta():
         model = CursusUserSkill
-        fields = ['id', 'level', 'skill']
+        fields = ['id', 'skill_id', 'skill_intra_id', 'skill_name', 'level']
 
 class CursusSerializer(serializers.ModelSerializer):
     class Meta():
