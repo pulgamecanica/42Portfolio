@@ -1,13 +1,7 @@
 from rest_framework import serializers
 from portfolio42_api.models import User, Skill, Cursus, Project, CursusUser, CursusUserSkill
 
-class SkillSerializer(serializers.ModelSerializer):
-    class Meta():
-        model = Skill
-        fields = ['id', 'name', 'intra_id']
-
 class CursusUserSkillSerializer(serializers.ModelSerializer):
-    # skill = SkillSerializer(read_only=True, source='id_cursus_skill.id_skill')
     skill_name = serializers.CharField(source='id_cursus_skill.id_skill.name')
     skill_id = serializers.IntegerField(source='id_cursus_skill.id_skill.id')
     skill_intra_id = serializers.IntegerField(source='id_cursus_skill.id_skill.intra_id')
