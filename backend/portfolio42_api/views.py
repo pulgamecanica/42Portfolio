@@ -9,8 +9,8 @@ import os
 """
 Welcome Page
 """
-def api_home(request):
-	return HttpResponse("<center><h1>Welcome to 42Api</h1></center>")
+# def api_home(request):
+# 	return HttpResponse("<center><h1>Welcome to 42Api</h1></center>")
 
 """
 Helper Function, rediret to intra or homepage

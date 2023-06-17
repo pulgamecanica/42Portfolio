@@ -31,7 +31,7 @@ class User(AbstractUser, IntraBaseModel):
 
 	cursus = models.ManyToManyField('Cursus', through='CursusUser', related_name='users')
 
-	REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url']
+	REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url', 'username']
 	USERNAME_FIELD = "intra_username"
 
 	def __str__(self):

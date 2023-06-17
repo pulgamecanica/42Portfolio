@@ -1,0 +1,4 @@
+from portfolio42_api.serializers.ProjectSerializer import ProjectSerializer
+from portfolio42_api.serializers.CursusSerializer import CursusSerializer
+from portfolio42_api.serializers.SkillSerializer import SkillSerializer
+from portfolio42_api.serializers.UserSerializer import UserSerializer
