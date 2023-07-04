@@ -1,7 +1,7 @@
 import os
 import requests
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
 
 def parser_add_cache(cmd):
@@ -29,8 +29,44 @@ def parser_add_db_command(cmd):
         parser_add_intra_id(cmd)
         parser_add_cache(cmd)
 
+class IntraAuth():
+    token_path = 'https://api.intra.42.fr/oauth/token'
+    
+    def __init__(self):
+        self.uid = os.environ.get('INTRA_UID')
+        self.secret = os.environ.get('INTRA_SECRET')
+
+        self.token_expires = datetime(1, 1, 1)
+        self.access_token = None
+
+    def token(self):
+        # If the token has expired or its not available try to refresh token
+        if (self.token_expires > datetime.now() and self.access_token is not None):
+            return self.access_token
+
+        data = {
+            'grant_type': 'client_credentials',
+            'client_id': self.uid,
+            'client_secret': self.secret
+        }
+
+        # Fetch token
+        res = requests.post(IntraAuth.token_path, data=data)
+        json = res.json()
+
+        if (res.status_code != 200):
+            raise RuntimeError(res.json()['error_description'])
+
+        # Extract info from response
+        self.access_token = json['access_token']
+        self.token_expires = datetime.now() + timedelta(seconds=json['expires_in'])
+
+        print (f"[INFO][TOKEN] fetched new token, expires at: {self.token_expires}")
+
 class Command(BaseCommand):
     help = "Sync the database with the intra api"
+
+    auth = IntraAuth()
 
     def add_arguments(self, parser):
         subparsers = parser.add_subparsers(dest='command', required=True, metavar='sub-command')
