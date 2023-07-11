@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
 from portfolio42_api.models import Project
+from portfolio42_api.management.api42 import Api42, ApiException
 
 def parser_add_cache(cmd):
     cmd.add_argument('--no-cache',
@@ -30,47 +31,9 @@ def parser_add_db_command(cmd):
         parser_add_intra_id(cmd)
         parser_add_cache(cmd)
 
-class IntraAuth():
-    token_path = 'https://api.intra.42.fr/oauth/token'
-    
-    def __init__(self):
-        self.uid = os.environ.get('INTRA_UID')
-        self.secret = os.environ.get('INTRA_SECRET')
-
-        self.token_expires = datetime(1, 1, 1)
-        self.access_token = None
-
-    def token(self):
-        # If the token has expired or its not available try to refresh token
-        if (self.token_expires > datetime.now() and self.access_token is not None):
-            return self.access_token
-
-        data = {
-            'grant_type': 'client_credentials',
-            'client_id': self.uid,
-            'client_secret': self.secret
-        }
-
-        # Fetch token
-        res = requests.post(IntraAuth.token_path, data=data)
-        json = res.json()
-
-        if (res.status_code != 200):
-            raise RuntimeError(res.json()['error_description'])
-
-        # Extract info from response
-        self.access_token = json['access_token']
-        self.token_expires = datetime.now() + timedelta(seconds=json['expires_in'])
-
-        print (f"[INFO][TOKEN] fetched new token, expires at: {self.token_expires}")
-        return self.access_token
-
-def update_projects(auth):
+def update_projects(api):
     projects_returned = 1
-    base_url = 'https://api.intra.42.fr/v2/'
-    endpoint = 'projects'
-    
-    headers = {'Authorization': f"Bearer {auth.token()}"}
+    endpoint = '/v2/projects'
 
     # Api settings
     per_page = 100
@@ -78,14 +41,15 @@ def update_projects(auth):
 
     while (projects_returned != 0):
         params = {'per_page': per_page, 'page': page}
-        res = requests.get('https://api.intra.42.fr/v2/projects', headers=headers, params=params)
-        if (res.status_code != 200):
-            print(res.text)
-            raise CommandError("[FETCH][PROJECT] Trouble fetching projects")
+        json = {}
 
-        json = res.json()
+        try:
+            json = api.get(endpoint, params)
+        except ApiException as e:
+            print(f"Error: {e}")
+            break
 
-        for project in res.json():
+        for project in json:
             p, created = Project.objects.get_or_create(intra_id=project['id'])
             p.name = project['name'][:50]
 
@@ -99,9 +63,11 @@ def update_projects(auth):
             p.exam = project['exam']
             p.solo = False # todo: REMOVE THIS
             p.save()
-            page += 1
             print(f'[FETCH] fetched \'{p.name}\' ({p.intra_id})') # todo: replace this with a logger
         
+        page += 1
+        projects_returned = len(json)
+        print(f"p: {page}, s: {projects_returned}")
 
 
 class Command(BaseCommand):
@@ -140,17 +106,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         command = options['command']
-        auth = IntraAuth()
+        api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'))
 
         if (command == 'project' or
             command == 'skill' or
             command == 'user' or
             command == 'relations' or
             command == 'cursus'):
-            auth = IntraAuth()
             match command:
                 case 'project':
-                    update_projects(auth)
+                    update_projects(api)
 
         print (F"command: {options['command']}")
 
