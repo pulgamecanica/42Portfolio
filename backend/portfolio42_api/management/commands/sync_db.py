@@ -1,10 +1,12 @@
 import os
+import sys
 import requests
 from pathlib import Path
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
 from portfolio42_api.models import Project
 from portfolio42_api.management.api42 import Api42, ApiException
+import logging
 
 def parser_add_cache(cmd):
     cmd.add_argument('--no-cache',
@@ -31,7 +33,7 @@ def parser_add_db_command(cmd):
         parser_add_intra_id(cmd)
         parser_add_cache(cmd)
 
-def update_projects(api):
+def update_projects(api, logger):
     projects_returned = 1
     endpoint = '/v2/projects'
 
@@ -45,8 +47,9 @@ def update_projects(api):
 
         try:
             json = api.get(endpoint, params)
+            logger.info(f"Obtained ({len(json)}) projects from api request")
         except ApiException as e:
-            print(f"Error: {e}")
+            logger.error(f"Error on 42 API request")
             break
 
         for project in json:
@@ -63,11 +66,13 @@ def update_projects(api):
             p.exam = project['exam']
             p.solo = False # todo: REMOVE THIS
             p.save()
-            print(f'[FETCH] fetched \'{p.name}\' ({p.intra_id})') # todo: replace this with a logger
+            if (created):
+                logger.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+            else:
+                logger.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
         
         page += 1
         projects_returned = len(json)
-        print(f"p: {page}, s: {projects_returned}")
 
 
 class Command(BaseCommand):
@@ -94,7 +99,7 @@ class Command(BaseCommand):
 
         parser.add_argument('--no-logfile',
                             action='store_true',
-                            dest="no_logs",
+                            dest="no_logfile",
                             help='If it should not create a logfile',
                             default=False)
         parser.add_argument('--log-dir',
@@ -106,7 +111,34 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         command = options['command']
-        api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'))
+
+        # setup logger
+        log_level = options['verbosity'] * 10
+        log_format = "[%(asctime)s][%(levelname)s] %(message)s"
+        log_time_format = "%y%m%d%H%M%S"
+        log_handlers = []
+        if (log_level > 0):
+            if (not options['no_logfile']):
+                log_dir : Path = options['log_dir']
+                log_dir.mkdir(parents=True, exist_ok=True)
+                logfile_name = f"{datetime.now().strftime('%y%m%d%H%M%S')}_{command}.log"
+                handler = logging.FileHandler(f"{log_dir.absolute()}/{logfile_name}")
+                log_handlers.append(handler)
+        else:
+            log_level = 0
+
+        sh = logging.StreamHandler(sys.stdout)
+        sh.setFormatter(logging.Formatter(log_format))
+        log_handlers.append(sh)
+
+
+        logging.basicConfig(level=log_level,
+                            format=log_format,
+                            datefmt=log_time_format,
+                            handlers=log_handlers)
+        logger = logging.getLogger('api')
+
+        api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'), logger=logger)
 
         if (command == 'project' or
             command == 'skill' or
@@ -115,7 +147,7 @@ class Command(BaseCommand):
             command == 'cursus'):
             match command:
                 case 'project':
-                    update_projects(api)
+                    update_projects(api, logger)
 
         print (F"command: {options['command']}")
 
