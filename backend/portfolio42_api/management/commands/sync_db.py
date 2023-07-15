@@ -16,9 +16,8 @@ def parser_add_db_command(cmd):
                 metavar='intra id',
                 type=int)
 
-def update_projects(api, ids : [] = []):
+def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
     projects_returned = 1
-    endpoint = '/v2/projects'
 
     # Api settings
     per_page = 100
@@ -41,26 +40,8 @@ def update_projects(api, ids : [] = []):
             logging.error(f"Error on 42 API request")
             break
 
-        for project in json:
-            p, created = Project.objects.get_or_create(intra_id=project['id'])
-            p.name = project['name'][:50]
-
-            if (created):
-                description = project['slug']
-                try:
-                    description = project['description']
-                except:
-                    pass
-                p.description = description
-
-            p.exam = project['exam']
-            p.solo = False # todo: REMOVE THIS
-            p.save()
-            if (created):
-                logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
-            else:
-                logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
-            logging.debug(f"Updated Project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
+        for obj in json:
+            func(obj)
         
         page += 1
         projects_returned = len(json)
@@ -68,6 +49,27 @@ def update_projects(api, ids : [] = []):
         # If we are looking for specific ids we do not need to make another request
         if (len(ids) > 0):
             break
+
+def update_project(project):
+    p, created = Project.objects.get_or_create(intra_id=project['id'])
+    p.name = project['name'][:50]
+
+    if (created):
+        description = project['slug']
+        try:
+            description = project['description']
+        except:
+            pass
+        p.description = description
+
+    p.exam = project['exam']
+    p.solo = False # todo: REMOVE THIS
+    p.save()
+    if (created):
+        logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+    else:
+        logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+    logging.debug(f"Updated Project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
 
 
 class Command(BaseCommand):
@@ -119,8 +121,6 @@ class Command(BaseCommand):
                 logfile_name = f"{datetime.now().strftime('%y%m%d%H%M%S')}_{command}.log"
                 handler = logging.FileHandler(f"{log_dir.absolute()}/{logfile_name}")
                 log_handlers.append(handler)
-        else:
-            log_level = 0
 
         sh = logging.StreamHandler(sys.stdout)
         sh.setFormatter(logging.Formatter(log_format))
@@ -137,10 +137,9 @@ class Command(BaseCommand):
         if (command == 'project' or
             command == 'skill' or
             command == 'user' or
-            command == 'relations' or
             command == 'cursus'):
-            match command:
-                case 'project':
-                    update_projects(api, options['intra_ids'])
+                cmd_map = {'project': update_project}
+                ep_map = {'project': '/v2/projects'}
+                update_db(api, ep_map[command], cmd_map[command], options['intra_ids'])
 
 
