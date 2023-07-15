@@ -44,6 +44,7 @@ def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
             func(obj)
         
         page += 1
+        params['page'] = page
         projects_returned = len(json)
 
         # If we are looking for specific ids we do not need to make another request
