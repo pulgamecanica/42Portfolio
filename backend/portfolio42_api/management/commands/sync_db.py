@@ -8,32 +8,15 @@ from portfolio42_api.models import Project
 from portfolio42_api.management.api42 import Api42, ApiException
 import logging
 
-def parser_add_cache(cmd):
-    cmd.add_argument('--no-cache',
-                     action='store_true',
-                     dest="no_cache",
-                     help='If it should not cache responses from the api',
-                     default=False)
-    cmd.add_argument('--cache-dir',
-                     action='store',
-                     dest='cache_dir',
-                     help='Where to store and read the cache',
-                     default=Path("./cache"),
-                     type=Path)
-
-def parser_add_intra_id(cmd):
-    cmd.add_argument('intra_ids',
-                     nargs='*',
-                     action='store',
-                     help='Which intra id(s) to update',
-                     metavar='intra id',
-                     type=int)
-
 def parser_add_db_command(cmd):
-        parser_add_intra_id(cmd)
-        parser_add_cache(cmd)
+    cmd.add_argument('intra_ids',
+                nargs='*',
+                action='store',
+                help='Which intra id(s) to update',
+                metavar='intra id',
+                type=int)
 
-def update_projects(api):
+def update_projects(api, ids : [] = []):
     projects_returned = 1
     endpoint = '/v2/projects'
 
@@ -41,8 +24,14 @@ def update_projects(api):
     per_page = 100
     page = 0 # This will increase in the while loop
 
+    params = {'per_page': per_page, 'page': page}
+    if (len(ids) > 0):
+        if (len(ids) > 100):
+            raise ValueError()
+        params['filter[id]'] = ','.join(map(str, ids))
+
+
     while (projects_returned != 0):
-        params = {'per_page': per_page, 'page': page}
         json = {}
 
         try:
@@ -62,6 +51,7 @@ def update_projects(api):
                     description = project['description']
                 except:
                     pass
+                p.description = description
 
             p.exam = project['exam']
             p.solo = False # todo: REMOVE THIS
@@ -70,9 +60,14 @@ def update_projects(api):
                 logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
             else:
                 logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+            logging.debug(f"Updated Project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
         
         page += 1
         projects_returned = len(json)
+
+        # If we are looking for specific ids we do not need to make another request
+        if (len(ids) > 0):
+            break
 
 
 class Command(BaseCommand):
@@ -146,6 +141,6 @@ class Command(BaseCommand):
             command == 'cursus'):
             match command:
                 case 'project':
-                    update_projects(api)
+                    update_projects(api, options['intra_ids'])
 
 
