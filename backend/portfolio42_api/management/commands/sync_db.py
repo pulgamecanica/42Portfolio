@@ -33,7 +33,7 @@ def parser_add_db_command(cmd):
         parser_add_intra_id(cmd)
         parser_add_cache(cmd)
 
-def update_projects(api, logger):
+def update_projects(api):
     projects_returned = 1
     endpoint = '/v2/projects'
 
@@ -47,9 +47,9 @@ def update_projects(api, logger):
 
         try:
             json = api.get(endpoint, params)
-            logger.info(f"Obtained ({len(json)}) projects from api request")
+            logging.info(f"Obtained ({len(json)}) projects from api request")
         except ApiException as e:
-            logger.error(f"Error on 42 API request")
+            logging.error(f"Error on 42 API request")
             break
 
         for project in json:
@@ -67,9 +67,9 @@ def update_projects(api, logger):
             p.solo = False # todo: REMOVE THIS
             p.save()
             if (created):
-                logger.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+                logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
             else:
-                logger.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
+                logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
         
         page += 1
         projects_returned = len(json)
@@ -112,7 +112,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         command = options['command']
 
-        # setup logger
+        # setup logging
         log_level = options['verbosity'] * 10
         log_format = "[%(asctime)s][%(levelname)s] %(message)s"
         log_time_format = "%y%m%d%H%M%S"
@@ -136,9 +136,8 @@ class Command(BaseCommand):
                             format=log_format,
                             datefmt=log_time_format,
                             handlers=log_handlers)
-        logger = logging.getLogger('api')
 
-        api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'), logger=logger)
+        api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'))
 
         if (command == 'project' or
             command == 'skill' or
@@ -147,7 +146,6 @@ class Command(BaseCommand):
             command == 'cursus'):
             match command:
                 case 'project':
-                    update_projects(api, logger)
+                    update_projects(api)
 
-        print (F"command: {options['command']}")
 
