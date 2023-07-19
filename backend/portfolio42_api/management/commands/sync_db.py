@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
-from portfolio42_api.models import Project
+from portfolio42_api.models import Project, Skill, User, Cursus
 from portfolio42_api.management.api42 import Api42, ApiException
 import logging
 
@@ -35,7 +35,7 @@ def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
 
         try:
             json = api.get(endpoint, params)
-            logging.info(f"Obtained ({len(json)}) projects from api request")
+            logging.info(f"Obtained ({len(json)}) objects from api request")
         except ApiException as e:
             logging.error(f"Error on 42 API request")
             break
@@ -53,24 +53,36 @@ def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
 
 def update_project(project):
     p, created = Project.objects.get_or_create(intra_id=project['id'])
+    
     p.name = project['name'][:50]
-
     if (created):
-        description = project['slug']
+        
         try:
-            description = project['description']
+            p.description = project['description']
         except:
-            pass
-        p.description = description
+            p.description = project['slug']
 
     p.exam = project['exam']
     p.solo = False # todo: REMOVE THIS
     p.save()
+
     if (created):
         logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
     else:
         logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
     logging.debug(f"Updated Project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
+
+def update_skill(skill):
+    s, created = Skill.objects.get_or_create(intra_id=skill['id'])
+    
+    s.name = skill['name'][:100]
+    s.save()
+
+    if (created):
+        logging.info(f"Created new skill: {s.name} (id: {s.id}, intra_id: {s.intra_id})")
+    else:
+        logging.info(f"Refreshed skill: {s.name} (id: {s.id}, intra_id: {s.intra_id})")
+    logging.debug(f"Updated skill ({s.id}) with: intra_id={s.intra_id}, name={s.name}")
 
 
 class Command(BaseCommand):
@@ -139,8 +151,8 @@ class Command(BaseCommand):
             command == 'skill' or
             command == 'user' or
             command == 'cursus'):
-                cmd_map = {'project': update_project}
-                ep_map = {'project': '/v2/projects'}
+                cmd_map = {'project': update_project, 'skill': update_skill}
+                ep_map = {'project': '/v2/projects', 'skill': '/v2/skills'}
                 update_db(api, ep_map[command], cmd_map[command], options['intra_ids'])
 
 
