@@ -17,11 +17,11 @@ def parser_add_db_command(cmd):
                 type=int)
 
 def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
-    projects_returned = 1
 
     # Api settings
     per_page = 100
     page = 0 # This will increase in the while loop
+    projects_returned = per_page
 
     params = {'per_page': per_page, 'page': page}
     if (len(ids) > 0):
@@ -30,7 +30,7 @@ def update_db(api: Api42, endpoint : str, func : callable, ids : [] = []):
         params['filter[id]'] = ','.join(map(str, ids))
 
 
-    while (projects_returned != 0):
+    while (projects_returned == per_page):
         json = {}
 
         try:
