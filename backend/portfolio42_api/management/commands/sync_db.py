@@ -70,7 +70,7 @@ def update_project(project):
         logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
     else:
         logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
-    logging.debug(f"Updated Project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
+    logging.debug(f"Updated project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
 
 def update_skill(skill):
     s, created = Skill.objects.get_or_create(intra_id=skill['id'])
@@ -84,6 +84,18 @@ def update_skill(skill):
         logging.info(f"Refreshed skill: {s.name} (id: {s.id}, intra_id: {s.intra_id})")
     logging.debug(f"Updated skill ({s.id}) with: intra_id={s.intra_id}, name={s.name}")
 
+def update_cursus(cursus):
+    c, created = Cursus.objects.get_or_create(intra_id=cursus['id'])
+    
+    c.name = cursus['name'][:50]
+    c.kind = cursus['kind'][:50]
+    c.save()
+
+    if (created):
+        logging.info(f"Created new cursus: {c.name} (id: {c.id}, intra_id: {c.intra_id})")
+    else:
+        logging.info(f"Refreshed cursus: {c.name} (id: {c.id}, intra_id: {c.intra_id})")
+    logging.debug(f"Updated cursus ({c.id}) with: intra_id={c.intra_id}, name={c.name}, kind={c.kind}")
 
 class Command(BaseCommand):
     help = "Sync the database with the intra api"
@@ -147,12 +159,11 @@ class Command(BaseCommand):
 
         api = Api42(os.environ.get('INTRA_UID'), os.environ.get('INTRA_SECRET'))
 
-        if (command == 'project' or
-            command == 'skill' or
-            command == 'user' or
-            command == 'cursus'):
-                cmd_map = {'project': update_project, 'skill': update_skill}
-                ep_map = {'project': '/v2/projects', 'skill': '/v2/skills'}
-                update_db(api, ep_map[command], cmd_map[command], options['intra_ids'])
-
+        match command:
+            case 'project':
+                update_db(api, '/v2/projects', update_project, options['intra_ids'])
+            case 'skill':
+                update_db(api, '/v2/skills', update_skill, options['intra_ids'])
+            case 'cursus':
+                update_db(api, '/v2/cursus', update_cursus, options['intra_ids'])
 
