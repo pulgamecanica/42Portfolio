@@ -97,6 +97,39 @@ def update_cursus(cursus):
         logging.info(f"Refreshed cursus: {c.name} (id: {c.id}, intra_id: {c.intra_id})")
     logging.debug(f"Updated cursus ({c.id}) with: intra_id={c.intra_id}, name={c.name}, kind={c.kind}")
 
+def update_users(api : Api42, ids : [] = []):
+    per_req = 100 # Amount of users to request
+    users = User.objects.all()
+    if (len(ids) > 0):
+        users = User.objects.filter(intra_id__in=ids)
+
+    i = 0
+    total = users.count()
+    while (i < total):
+        end_i = min(i + per_req, total)
+        user_batch = users[i:end_i]
+        params = { 'filter[id]': (','.join(map(lambda u : str(u.intra_id), user_batch)))}
+        r = api.get('/v2/users', params)
+
+        logging.info(f"Obtained ({len(r)}) users from api request")
+
+        for u_json in r:
+            intra_id = u_json['id']
+            u = User.objects.get(intra_id=intra_id)
+
+            u.intra_username = u_json['login']
+            u.first_name = u_json['first_name']
+            u.last_name = u_json['last_name']
+            u.email = u_json['email']
+            u.intra_url = u_json['url']
+            u.image_url = u_json['image']['link']
+
+            u.save()
+
+            logging.info(f"Refreshed user: {u.intra_username} (id: {u.id}, intra_id: {u.intra_id})")
+
+        i += per_req
+
 class Command(BaseCommand):
     help = "Sync the database with the intra api"
 
@@ -166,4 +199,6 @@ class Command(BaseCommand):
                 update_db(api, '/v2/skills', update_skill, options['intra_ids'])
             case 'cursus':
                 update_db(api, '/v2/cursus', update_cursus, options['intra_ids'])
+            case 'user':
+                update_users(api, options['intra_ids'])
 
