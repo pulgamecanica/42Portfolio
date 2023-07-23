@@ -82,6 +82,13 @@ def update_relations(api : Api42):
     update_from_db(api, User, '/v2/users/:id/cursus_users', update_cursususer_skill)
     update_from_db(api, User, '/v2/users/:id/projects_users', ProjectUser.update)
 
+def update_all(api : Api42):
+    update_basic(api, '/v2/projects', Project.update)
+    update_basic(api, '/v2/skills', Skill.update)
+    update_basic(api, '/v2/cursus', Cursus.update)
+    update_from_db(api, User, '/v2/users/:id', User.update, True)
+    update_relations(api)
+
 class Command(BaseCommand):
     help = "Sync the database with the intra api"
 
@@ -94,15 +101,7 @@ class Command(BaseCommand):
         parser_add_db_command(subparsers.add_parser('skill', help="Update skill table"))
 
         parser_add_db_command(subparsers.add_parser('relations', help="Update relations in the database"))
-
-        cmd_clear_cache = subparsers.add_parser('clear_cache')
-        cmd_clear_cache.add_argument('--cache-dir',
-                                     action='store',
-                                     dest='cache_dir',
-                                     help='Folder of where the cache is stored',
-                                     default=Path("./cache"),
-                                     type=Path)
-
+        subparsers.add_parser('all', help="Runs user, cursus, project, skill & relations")
 
         parser.add_argument('--no-logfile',
                             action='store_true',
@@ -131,11 +130,9 @@ class Command(BaseCommand):
                 logfile_name = f"{datetime.now().strftime('%y%m%d%H%M%S')}_{command}.log"
                 handler = logging.FileHandler(f"{log_dir.absolute()}/{logfile_name}")
                 log_handlers.append(handler)
-
+       
         sh = logging.StreamHandler(sys.stdout)
-        sh.setFormatter(logging.Formatter(log_format))
         log_handlers.append(sh)
-
 
         logging.basicConfig(level=log_level,
                             format=log_format,
@@ -152,7 +149,9 @@ class Command(BaseCommand):
             case 'cursus':
                 update_basic(api, '/v2/cursus', Cursus.update, options['intra_ids'])
             case 'user':
-                update_from_db(api, User, '/v2/users/:id', User.update, True)
+                update_from_db(api, User, '/v2/users/:id', User.update, True, options['intra_ids'])
             case 'relations':
                 update_relations(api)
+            case 'all':
+                update_all(api)
 
