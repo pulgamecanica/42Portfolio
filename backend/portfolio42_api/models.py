@@ -20,6 +20,11 @@ class IntraBaseModel(models.Model):
     def was_updated_today(self):
         return self.updated_at > date.yesterday()
 
+def log_update(t, is_created):
+    logging.info(f"{'Created new' if is_created else 'Refreshed'} {type(t).__name__}: {t}")
+
+
+# Basic models
 
 # User model
 class User(AbstractUser, IntraBaseModel):
@@ -37,10 +42,14 @@ class User(AbstractUser, IntraBaseModel):
     USERNAME_FIELD = "intra_username"
 
     def __str__(self):
-        return "@" + self.intra_username
+        return f"({self.intra_username})"
 
     def update(user):
-        u = User.objects.get(intra_id=user['id'])
+        try:
+            u = User.objects.get(intra_id=user['id'])
+        except:
+            logging.error(f"Could not find User with (intra_id: {user['id']})")
+            return None
 
         u.intra_username = user['login']
         u.first_name = user['first_name']
@@ -51,7 +60,7 @@ class User(AbstractUser, IntraBaseModel):
 
         u.save()
 
-        logging.info(f"Refreshed user: {u.intra_username} (id: {u.id}, intra_id: {u.intra_id})")
+        log_update(u, False)
         return u
 
 
@@ -63,18 +72,18 @@ class Cursus(IntraBaseModel):
 
     skills = models.ManyToManyField('Skill', through='CursusSkill', related_name='cursus')
 
+    def __str__(self):
+        return f"({self.name})"
+
     def update(cursus):
         c, created = Cursus.objects.get_or_create(intra_id=cursus['id'])
-        
+
         c.name = cursus['name'][:50]
         c.kind = cursus['kind'][:50]
         c.save()
 
-        if (created):
-            logging.info(f"Created new cursus: {c.name} (id: {c.id}, intra_id: {c.intra_id})")
-        else:
-            logging.info(f"Refreshed cursus: {c.name} (id: {c.id}, intra_id: {c.intra_id})")
-        logging.debug(f"Updated cursus ({c.id}) with: intra_id={c.intra_id}, name={c.name}, kind={c.kind}")
+        log_update(c, created)
+
         return c
 
 
@@ -87,16 +96,16 @@ class Project(IntraBaseModel):
 
     users = models.ManyToManyField('User', through='ProjectUser', related_name='projects')
     cursus = models.ManyToManyField('cursus', through='ProjectCursus', related_name='projects')
-    
+
     def __str__(self):
-        return f"{self.name}:{self.intra_id}"
+        return f"({self.name})"
 
     def update(project):
         p, created = Project.objects.get_or_create(intra_id=project['id'])
 
         p.name = project['name'][:50]
         if (created):
-            
+
             try:
                 p.description = project['description']
             except:
@@ -106,11 +115,7 @@ class Project(IntraBaseModel):
         p.solo = False # todo: REMOVE THIS
         p.save()
 
-        if (created):
-            logging.info(f"Created new project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
-        else:
-            logging.info(f"Refreshed project: {p.name} (id: {p.id}, intra_id: {p.intra_id})")
-        logging.debug(f"Updated project ({p.id}) with: intra_id={p.intra_id}, desc={p.description}, exam={p.exam}")
+        log_update(p, created)
 
         return p
 
@@ -119,20 +124,16 @@ class Skill(IntraBaseModel):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.name}:{self.intra_id}"
+        return f"({self.name})"
 
     def update(skill):
         s, created = Skill.objects.get_or_create(intra_id=skill['id'])
-    
+
         s.name = skill['name'][:100]
         s.save()
 
-        if (created):
-            logging.info(f"Created new skill: {s.name} (id: {s.id}, intra_id: {s.intra_id})")
-        else:
-            logging.info(f"Refreshed skill: {s.name} (id: {s.id}, intra_id: {s.intra_id})")
-        logging.debug(f"Updated skill ({s.id}) with: intra_id={s.intra_id}, name={s.name}")
-        
+        log_update(s, created)
+
         return s
 
 ## Relations
@@ -148,26 +149,30 @@ class ProjectUser(IntraBaseModel):
     finished = models.BooleanField(default=False)
     finished_at = models.DateTimeField()
 
+    def __str__(self):
+        return f"(user: {self.id_user}, project: {self.id_project})"
+
     def update(user, projectuser):
-        p = Project.objects.get(intra_id=projectuser['project']['id'])
+        try:
+            p = Project.objects.get(intra_id=projectuser['project']['id'])
+        except:
+            logging.error(f"Could not find Project with (intra_id: {projectuser['project']['id']})")
+            return None
         pu, created = ProjectUser.objects.get_or_create(intra_id=projectuser['id'],
                                                         id_user=user,
                                                         id_project=p,
                                                         defaults={'finished_at': datetime(1,1,1,0,0),
                                                                   'finished': False,
                                                                   'grade': 0})
-        
+
         pu.finished = projectuser['validated?'] if projectuser['validated?'] is not None else False
         if pu.finished:
             d = timezone.make_aware(datetime.strptime(projectuser['updated_at'], '%Y-%m-%dT%H:%M:%S.%fZ'), timezone.utc)
             pu.finished_at = d
         pu.grade = projectuser['final_mark'] if projectuser['final_mark'] is not None else 0
         pu.save()
-        
-        if (created):
-            logging.info(f"Created new cursususer: (user: {pu.id_user}, project: {pu.id_project})")
-        else:
-            logging.info(f"Refreshed cursususer: (user: {pu.id_user}, project: {pu.id_project})")
+
+        log_update(pu, created)
 
         return pu
 
@@ -178,8 +183,15 @@ class CursusUser(IntraBaseModel):
     level = models.FloatField()
     begin_at = models.DateField()
 
+    def __str__(self):
+        return f"(cursus: {self.id_cursus}, user: {self.id_user})"
+
     def update(user, cursususer):
-        c = Cursus.objects.get(intra_id=cursususer['cursus']['id'])
+        try:
+            c = Cursus.objects.get(intra_id=cursususer['cursus']['id'])
+        except:
+            logging.error(f"Could not find Cursus with (intra_id: {cursususer['cursus']['id']})")
+            return None
         cu, created = CursusUser.objects.get_or_create(intra_id=cursususer['id'],
                                                     id_user=user,
                                                     id_cursus=c,
@@ -188,11 +200,8 @@ class CursusUser(IntraBaseModel):
         cu.level = cursususer['level']
         cu.save()
 
-        if (created):
-            logging.info(f"Created new cursususer: (cursus_id: {cu.id_cursus}, user_id: {cu.id_user})")
-        else:
-            logging.info(f"Refreshed cursususer: (cursus_id: {cu.id_cursus}, user_id: {cu.id_user})")
-        
+        log_update(cu, created)
+
         return cu
 
 # Creates a relation between a project and a cursus, it relates which projects are in a cursus
@@ -200,15 +209,20 @@ class ProjectCursus(models.Model):
     id_cursus = models.ForeignKey('Cursus', on_delete=models.CASCADE)
     id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"(cursus: {self.id_cursus}, project: {self.id_project})"
+
     def update(cursus, project):
-        p = Project.objects.get(intra_id=project['id'])
+        try:
+            p = Project.objects.get(intra_id=project['id'])
+        except:
+            logging.error(f"Could not find Project with (intra_id: {project['id']})")
+            return None
         cp, created = ProjectCursus.objects.get_or_create(id_project=p, id_cursus=cursus)
         cp.save()
 
-        if (created):
-            logging.info(f"Created new projectcursus: (project_id: {cp.id_project}, cursus_id: {cp.id_cursus})")
-        else:
-            logging.info(f"Refreshed projectcursus: (project_id: {cp.id_project}, cursus_id: {cp.id_cursus})")
+        log_update(cp, created)
+
         return cp
 
 
@@ -219,15 +233,21 @@ class CursusSkill(models.Model):
 
     cursus_users = models.ManyToManyField('CursusUser', through='CursusUserSkill', related_name='skills')
 
+    def __str__(self):
+        return f"(cursus: {self.id_cursus}, skill: {self.id_skill})"
+
     def update(cursus, skill):
+        try:
+            s = Skill.objects.get(intra_id=skill['id'])
+        except:
+            logging.error(f"Could not find Skill with (intra_id: {skill['id']})")
+            return None
         s = Skill.objects.get(intra_id=skill['id'])
         cs, created = CursusSkill.objects.get_or_create(id_cursus=cursus, id_skill=s)
         cs.save()
 
-        if (created):
-            logging.info(f"Created new cursusSkill: (cursus_id: {cs.id_cursus}, skill_id: {cs.id_skill})")
-        else:
-            logging.info(f"Refreshed cursusSkill: (cursus_id: {cs.id_cursus}, skill_id: {cs.id_skill})")
+        log_update(cs, created)
+
         return cs
 
 # Creates a relation between a cursus skill and a cursus user
@@ -236,17 +256,29 @@ class CursusUserSkill(models.Model):
     id_cursus_user = models.ForeignKey('CursusUser', on_delete=models.CASCADE)
     level = models.FloatField()
 
+    def __str__(self):
+        return f"(cursus skill: {self.id_cursus_skill}, user: {self.id_cursus_user.id_user})"
+
     def update(cursusUser, cuSkill):
-        s = Skill.objects.get(intra_id=cuSkill['id'])
-        cs = CursusSkill.objects.get(id_cursus=cursusUser.id_cursus, id_skill=s)
+        s = None
+        try:
+            s = Skill.objects.get(intra_id=cuSkill['id'])
+        except:
+            logging.error(f"Could not find Skill with (intra_id: {cuSkill['id']})")
+            return None
+
+        cs = None
+        try:
+            cs = CursusSkill.objects.get(id_cursus=cursusUser.id_cursus, id_skill=s)
+        except:
+            logging.error(f"Could not find CursusSkill with (id_cursus: {cursusUser.id_cursus.id}, id_skill: {s.id})")
+            return None
         cus, created = CursusUserSkill.objects.get_or_create(id_cursus_user=cursusUser,
                                                              id_cursus_skill=cs,
                                                              defaults={'level': cuSkill['level']})
         cus.level = cuSkill['level']
         cus.save()
 
-        if (created):
-            logging.info(f"Created new cursususer: (cursus: {cus.id_cursus_skill}, user: {cus.id_cursus_user})")
-        else:
-            logging.info(f"Refreshed cursususer: (cursus: {cus.id_cursus_skill}, user: {cus.id_cursus_user})")
+        log_update(cus, created)
+
         return cus

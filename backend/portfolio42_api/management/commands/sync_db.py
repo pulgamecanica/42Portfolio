@@ -42,7 +42,7 @@ def update_basic(api: Api42, endpoint : str, func : callable, ids : [] = []):
 
         for obj in json:
             func(obj)
-        
+
         page += 1
         params['page'] = page
         projects_returned = len(json)
@@ -73,6 +73,8 @@ def update_from_db(api : Api42, table, endpoint : str, func : callable, is_basic
 # Updates cursususer and cursususerskill
 def update_cursususer_skill(user, cursususer):
     cu = CursusUser.update(user, cursususer)
+    if (cu == None):
+        return
     for i in cursususer['skills']:
         CursusUserSkill.update(cu, i)
 
@@ -130,7 +132,7 @@ class Command(BaseCommand):
                 logfile_name = f"{datetime.now().strftime('%y%m%d%H%M%S')}_{command}.log"
                 handler = logging.FileHandler(f"{log_dir.absolute()}/{logfile_name}")
                 log_handlers.append(handler)
-       
+
         sh = logging.StreamHandler(sys.stdout)
         log_handlers.append(sh)
 
