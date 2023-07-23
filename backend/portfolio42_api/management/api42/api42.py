@@ -39,8 +39,6 @@ class AuthApi42():
                     time.sleep(sleep_time.total_seconds())
                 else:
                     raise ApiException('Too many requests')
-
-            self.__window.append(datetime.now() + timedelta(seconds=1))
             return self.__access_token
 
         # If the token has expired or its not available try to refresh token
@@ -74,9 +72,14 @@ class AuthApi42():
                 time.sleep(sleep_time.total_seconds())
             else:
                 raise ApiException('Too many requests')
-        self.__window.append(datetime.now() + timedelta(seconds=1))
 
         return self.__access_token
+
+    # Should be called after making a request,
+    # updates the window for more accurate rate limit checking
+    def report_request(self):
+        self.__window.append(datetime.now() + timedelta(seconds=1))
+
 
 class Api42():
     __api_base_url = "https://api.intra.42.fr"
@@ -95,12 +98,15 @@ class Api42():
         self.__auth.wait(should_wait)
 
     def get(self, endpoint : str, params : dict = { }):
+        # Make request
         headers = {'Authorization': f"Bearer {self.__auth.token()}"}
         res = requests.get(f"{Api42.__api_base_url}{endpoint}",
                            headers=headers, params=params)
+        self.__auth.report_request()
 
         logging.info(f"Made request to 42 API at {endpoint} ({res.status_code})")
 
+        # Check the status code
         if(res.status_code != 200):
             error_reason = f"Error while fetching, status code: {res.status_code}"
             try:
@@ -111,6 +117,7 @@ class Api42():
                 pass
             raise ApiException(error_reason)
         
+        # Try parsing json
         try:
             return res.json()
         except:
