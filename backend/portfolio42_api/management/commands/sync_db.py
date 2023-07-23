@@ -3,8 +3,9 @@ import sys
 import requests
 from pathlib import Path
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.core.management.base import BaseCommand, CommandError
-from portfolio42_api.models import Project, Skill, User, Cursus
+from portfolio42_api.models import Project, Skill, User, Cursus, ProjectCursus, CursusUser, CursusUserSkill, CursusSkill, ProjectUser
 from portfolio42_api.management.api42 import Api42, ApiException
 import logging
 
@@ -130,6 +131,96 @@ def update_users(api : Api42, ids : [] = []):
 
         i += per_req
 
+def update_projectcursus(cursus, project):
+    p = Project.objects.get(intra_id=project['id'])
+    cp, created = ProjectCursus.objects.get_or_create(id_project=p, id_cursus=cursus)
+    cp.save()
+
+    if (created):
+        logging.info(f"Created new projectcursus: (project_id: {cp.id_project}, cursus_id: {cp.id_cursus})")
+    else:
+        logging.info(f"Refreshed projectcursus: (project_id: {cp.id_project}, cursus_id: {cp.id_cursus})")
+
+# Updates cursususer and cursususerskill
+def update_cursususer_skill(user, cursususer):
+    c = Cursus.objects.get(intra_id=cursususer['cursus']['id'])
+    cu, created = CursusUser.objects.get_or_create(intra_id=cursususer['id'],
+                                                   id_user=user,
+                                                   id_cursus=c,
+                                                   defaults={'level': cursususer['level'],
+                                                             'begin_at': cursususer['begin_at'][:10]})
+    cu.level = cursususer['level']
+    cu.save()
+
+    if (created):
+        logging.info(f"Created new cursususer: (cursus_id: {cu.id_cursus}, user_id: {cu.id_user})")
+    else:
+        logging.info(f"Refreshed cursususer: (cursus_id: {cu.id_cursus}, user_id: {cu.id_user})")
+
+    for i in cursususer['skills']:
+        s = Skill.objects.get(intra_id=i['id'])
+        cs = CursusSkill.objects.get(id_cursus=c, id_skill=s)
+        cus, created = CursusUserSkill.objects.get_or_create(id_cursus_user=cu,
+                                                    id_cursus_skill=cs,
+                                                    defaults={'level': i['level']})
+        cus.level = i['level']
+        cus.save()
+
+        if (created):
+            logging.info(f"Created new cursususer: (cursus: {cus.id_cursus_skill}, user: {cus.id_cursus_user})")
+        else:
+            logging.info(f"Refreshed cursususer: (cursus: {cus.id_cursus_skill}, user: {cus.id_cursus_user})")
+
+def update_projectuser(user, projectuser):
+    p = Project.objects.get(intra_id=projectuser['project']['id'])
+    pu, created = ProjectUser.objects.get_or_create(intra_id=projectuser['id'],
+                                           id_user=user,
+                                           id_project=p,
+                                           defaults={'finished_at': datetime(1,1,1,0,0),
+                                                     'finished': False,
+                                                     'grade': 0})
+    pu.finished = projectuser['validated?'] if projectuser['validated?'] is not None else False
+    if pu.finished:
+        d = timezone.make_aware(datetime.strptime(projectuser['updated_at'], '%Y-%m-%dT%H:%M:%S.%fZ'), timezone.utc)
+        pu.finished_at = d
+    pu.grade = projectuser['final_mark'] if projectuser['final_mark'] is not None else 0
+    pu.save()
+    
+    if (created):
+        logging.info(f"Created new cursususer: (user: {pu.id_user}, project: {pu.id_project})")
+    else:
+        logging.info(f"Refreshed cursususer: (user: {pu.id_user}, project: {pu.id_project})")
+
+    
+def update_cursusskill(cursus, skill):
+    s = Skill.objects.get(intra_id=skill['id'])
+    cs, created = CursusSkill.objects.get_or_create(id_cursus=cursus, id_skill=s)
+    cs.save()
+
+    if (created):
+        logging.info(f"Created new cursusSkill: (cursus_id: {cs.id_cursus}, skill_id: {cs.id_skill})")
+    else:
+        logging.info(f"Refreshed cursusSkill: (cursus_id: {cs.id_cursus}, skill_id: {cs.id_skill})")
+
+
+# endpoint should be formatted with `:id` which will be replaced with the actual id
+def update_from_db(api : Api42, table, endpoint : str, func : callable):
+    all = table.objects.all()
+    endpoint_start = endpoint[:endpoint.index(':id')]
+    endpoint_end = endpoint[endpoint.index(':id') + 3:]
+
+    for o in all:
+        ep = f"{endpoint_start}{o.intra_id}{endpoint_end}"
+        json = api.get(ep)
+        for e in json:
+            func(o, e)
+
+def update_relations(api : Api42):
+    update_from_db(api, Cursus, '/v2/cursus/:id/projects', update_projectcursus)
+    update_from_db(api, Cursus, '/v2/cursus/:id/skills', update_cursusskill)
+    update_from_db(api, User, '/v2/users/:id/cursus_users', update_cursususer_skill)
+    update_from_db(api, User, '/v2/users/:id/projects_users', update_projectuser)
+
 class Command(BaseCommand):
     help = "Sync the database with the intra api"
 
@@ -201,4 +292,6 @@ class Command(BaseCommand):
                 update_db(api, '/v2/cursus', update_cursus, options['intra_ids'])
             case 'user':
                 update_users(api, options['intra_ids'])
+            case 'relations':
+                update_relations(api)
 
