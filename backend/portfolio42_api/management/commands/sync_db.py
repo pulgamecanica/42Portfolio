@@ -57,7 +57,7 @@ def update_from_db(api : Api42, table, endpoint : str, func : callable, is_basic
     if (len(ids) == 0):
         all = table.objects.all()
     else:
-        all = table.objects.all(intra_id__in=ids)
+        all = table.objects.filter(intra_id__in=ids)
     endpoint_start = endpoint[:endpoint.index(':id')]
     endpoint_end = endpoint[endpoint.index(':id') + 3:]
 
