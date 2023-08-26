@@ -7,7 +7,7 @@ import logging
 
 class AuthApi42():
     __token_url = 'https://api.intra.42.fr/oauth/token'
-    
+
     def __init__(self,
                  uid : str = os.environ.get('INTRA_UID'),
                  secret : str = os.environ.get('INTRA_SECRET'),
@@ -20,10 +20,15 @@ class AuthApi42():
         self.__access_token = None
         self.__reqs_per_second = reqs_per_second
         self.__await_limit = wait_for_limit
-        self.__window = [] # Will store when a request expires (aka datetime.now() + 1 second) 
+        self.__window = [] # Will store when a request expires (aka datetime.now() + 1 second)
 
-    def wait(self, should_wait : bool):
-        self.__await_limit = should_wait
+    @property
+    def await_limit(self):
+        return self.__await_limit
+
+    @await_limit.setter
+    def await_limit(self, flag : bool):
+        self.__await_limit = flag
 
     # This function should be called each time the user wants to make a request
     def token(self):
@@ -38,6 +43,7 @@ class AuthApi42():
                     sleep_time = self.__window[0] - datetime.now()
                     time.sleep(sleep_time.total_seconds())
                 else:
+                    logging.error('Too Many Requests')
                     raise ApiException('Too many requests')
             return self.__access_token
 
@@ -67,7 +73,7 @@ class AuthApi42():
         self.__window = [t for t in self.__window if now < t]
 
         if (len(self.__window) >= self.__reqs_per_second):
-            if (self.__await_limit):
+            if (self.await_limit):
                 sleep_time = self.__window[0] - datetime.now()
                 time.sleep(sleep_time.total_seconds())
             else:
@@ -94,8 +100,8 @@ class Api42():
     def __init__(self, uid :str, secret : str, req_limit : int = 2):
         self.__auth = AuthApi42(uid, secret, reqs_per_second = req_limit, wait_for_limit= True)
 
-    def wait(self, should_wait : bool):
-        self.__auth.wait(should_wait)
+    def await_limit(self, should_wait : bool):
+        self.__auth.await_limit(should_wait)
 
     def get(self, endpoint : str, params : dict = { }):
         # Make request
@@ -115,12 +121,14 @@ class Api42():
                 if (len(res.text) != 0):
                     error_reason = res.text
                 pass
+            logging.error("error_reason")
             raise ApiException(error_reason)
-        
+
         # Try parsing json
         try:
             return res.json()
         except:
+            logging.error("Response was not in json format")
             raise ApiException("Response was not in json format")
 
 
