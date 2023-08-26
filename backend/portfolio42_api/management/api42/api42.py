@@ -33,9 +33,8 @@ class AuthApi42():
     # This function should be called each time the user wants to make a request
     def token(self):
         if (self.__token_expires > datetime.now() and self.__access_token is not None):
-            now = datetime.now()
             # removed timed-out requests from our window
-            self.__window = [t for t in self.__window if now < t]
+            self.__window = [t for t in self.__window if datetime.now() < t]
 
             # If we hit the request limit
             if (len(self.__window) >= self.__reqs_per_second):
