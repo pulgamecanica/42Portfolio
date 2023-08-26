@@ -111,7 +111,7 @@ class AuthApi42():
 
 
 class Api42():
-    _API_URL = "https://api.intra.42.fr"
+    _API_URL = "https://api.intra.42.fr/v2"
 
     """
         Interface for interacting with the 42 api

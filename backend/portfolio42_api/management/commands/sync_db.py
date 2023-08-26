@@ -79,16 +79,16 @@ def update_cursususer_skill(user, cursususer):
         CursusUserSkill.update(cu, i)
 
 def update_relations(api : Api42):
-    update_from_db(api, Cursus, '/v2/cursus/:id/projects', ProjectCursus.update)
-    update_from_db(api, Cursus, '/v2/cursus/:id/skills', CursusSkill.update)
-    update_from_db(api, User, '/v2/users/:id/cursus_users', update_cursususer_skill)
-    update_from_db(api, User, '/v2/users/:id/projects_users', ProjectUser.update)
+    update_from_db(api, Cursus, '/cursus/:id/projects', ProjectCursus.update)
+    update_from_db(api, Cursus, '/cursus/:id/skills', CursusSkill.update)
+    update_from_db(api, User, '/users/:id/cursus_users', update_cursususer_skill)
+    update_from_db(api, User, '/users/:id/projects_users', ProjectUser.update)
 
 def update_all(api : Api42):
-    update_basic(api, '/v2/projects', Project.update)
-    update_basic(api, '/v2/skills', Skill.update)
-    update_basic(api, '/v2/cursus', Cursus.update)
-    update_from_db(api, User, '/v2/users/:id', User.update, True)
+    update_basic(api, '/projects', Project.update)
+    update_basic(api, '/skills', Skill.update)
+    update_basic(api, '/cursus', Cursus.update)
+    update_from_db(api, User, '/users/:id', User.update, True)
     update_relations(api)
 
 class Command(BaseCommand):
@@ -145,13 +145,13 @@ class Command(BaseCommand):
 
         match command:
             case 'project':
-                update_basic(api, '/v2/projects', Project.update, options['intra_ids'])
+                update_basic(api, '/projects', Project.update, options['intra_ids'])
             case 'skill':
-                update_basic(api, '/v2/skills', Skill.update, options['intra_ids'])
+                update_basic(api, '/skills', Skill.update, options['intra_ids'])
             case 'cursus':
-                update_basic(api, '/v2/cursus', Cursus.update, options['intra_ids'])
+                update_basic(api, '/cursus', Cursus.update, options['intra_ids'])
             case 'user':
-                update_from_db(api, User, '/v2/users/:id', User.update, True, options['intra_ids'])
+                update_from_db(api, User, '/users/:id', User.update, True, options['intra_ids'])
             case 'relations':
                 update_relations(api)
             case 'all':
