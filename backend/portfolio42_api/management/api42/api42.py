@@ -23,6 +23,23 @@ class AuthApi42():
         self.__window = [] # Will store when a request expires (aka datetime.now() + 1 second)
 
     @property
+    def uid(self):
+        return self.__uid
+
+    @property
+    def secret(self):
+        return self.__secret
+
+    @secret.setter
+    def secret(self, _secret : str):
+        self.__secret = _secret
+
+    @property
+    def access_token(self):
+        return self.__access_token
+
+
+    @property
     def await_limit(self):
         return self.__await_limit
 
@@ -31,6 +48,7 @@ class AuthApi42():
         self.__await_limit = flag
 
     # This function should be called each time the user wants to make a request
+    @property
     def token(self):
         if (self.__token_expires > datetime.now() and self.__access_token is not None):
             # removed timed-out requests from our window
