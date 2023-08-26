@@ -36,7 +36,7 @@ class AuthApi42():
             # removed timed-out requests from our window
             self.__window = [t for t in self.__window if datetime.now() < t]
 
-            # If we hit the request limit
+            # If we hit the request limit wait until a slot in the window opens up
             if (len(self.__window) >= self.__reqs_per_second):
                 if (self.__await_limit):
                     sleep_time = self.__window[0] - datetime.now()
@@ -57,8 +57,14 @@ class AuthApi42():
         res = requests.post(AuthApi42.__token_url, data=data)
         json = res.json()
 
+        # throw an exception if we encounter an error (non 200 response code)
         if (res.status_code != 200):
-            raise RuntimeError(res.json()['error_description'])
+            error_str = f"Unknown Error ({res.status_code})"
+            try:
+                error_str = res.json()['error_description']
+            except:
+                pass
+            raise RuntimeError(error_str)
 
         # Extract info from response
         self.__access_token = json['access_token']
