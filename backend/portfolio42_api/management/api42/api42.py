@@ -82,7 +82,7 @@ class AuthApi42():
                 error_str = res.json()['error_description']
             except:
                 pass
-            raise RuntimeError(error_str)
+            raise ApiException(error_str)
 
         # Extract info from response
         self._access_token = json['access_token']
