@@ -144,7 +144,7 @@ class Api42():
                 if (len(res.text) != 0):
                     error_reason = res.text
                 pass
-            logging.error("error_reason")
+            logging.error(error_reason)
             raise ApiException(error_reason)
 
         # Try parsing json
