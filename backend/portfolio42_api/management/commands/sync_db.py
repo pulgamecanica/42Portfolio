@@ -37,7 +37,7 @@ def update_basic(api: Api42, endpoint : str, func : callable, ids : [] = []):
             json = api.get(endpoint, params)
             logging.info(f"Obtained ({len(json)}) objects from api request")
         except ApiException as e:
-            logging.error(f"Error on 42 API request")
+            logging.error(e)
             break
 
         for obj in json:
@@ -63,7 +63,12 @@ def update_from_db(api : Api42, table, endpoint : str, func : callable, is_basic
 
     for o in all:
         ep = f"{endpoint_start}{o.intra_id}{endpoint_end}"
-        json = api.get(ep)
+        try:
+            json = api.get(ep)
+        except ApiException as e:
+            logging.error(e)
+            break
+
         if (is_basic):
             func(json)
         else:
