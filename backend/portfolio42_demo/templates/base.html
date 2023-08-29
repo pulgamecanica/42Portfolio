@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="42Portfolio, a tool to help 42students generate data. Author: pulgamecanica"> 
+    <meta name="robots" content="noindex,nofollow">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>{% block title %}42Portfolio{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="{% static 'd3.js' %}"></script>
+    <script src="{% static 'voters.js' %}"></script>
+</head>
+
+<body>
+    <div id="background-arena">
+        
+    </div>
+    <div class="navbar">
+        {% block navbar %}
+            {% url 'home' as home_url %}
+            <a href="{{ home_url }}">
+                <img src="{% static 'icons/42.svg' %}" alt="42 Logo" class="logo-img">
+            </a>
+            {% if request.user.is_authenticated %}
+            {% url 'profile' as profile_url %}
+            <a href="{{ profile_url }}">
+                <img src="{{ request.user.image_url }}" alt="user img" class="profile-img">
+            </a>
+            {% endif %}
+        {% endblock %}
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        {% block footer %}
+        <span>Open Source</span>
+        <span>Made with ❤️</span>
+        <span>© 2023 - by @pulgamecanica</span>
+        <a href="https://github.com/pulgamecanica/42Portfolio" target="blank">
+            <img src="{% static 'icons/gh.svg' %}" alt="GitHub Loo" height="40px">
+        </a>
+        {% endblock %}
+    </footer>
+</body>
+</html>

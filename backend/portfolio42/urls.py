@@ -16,8 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from portfolio42_demo import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("portfolio42_api.urls")),
+    path("demo/", include("portfolio42_demo.urls")),
 ]
