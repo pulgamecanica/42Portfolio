@@ -1,4 +1,6 @@
-* {}
+* {
+	font-family: 'Barlow', sans-serif;
+}
 
 html {
 
@@ -58,14 +60,49 @@ body {
 	opacity: 0.2;
 	overflow: hidden !important;
 	height: 100vh;
+	width: 100vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #content {
+	max-width: 800px;
+	margin: auto;
+	background-color: rgba(0, 0, 0, 0.3);
+	min-height: 50vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	/*border-radius: 0.5rem;*/
+}
 
+#slotMachineContent {
+	display: flex;
+}
+
+#slotMachineContent .window {
+	background: #fafafa;
+  	width: 100px;
+  	height: 110px;
+  	overflow: hidden;
+  	border-radius: 5px;
+  	margin: 5px;
+}
+#slotMachineContent .window .options {
+	transition: transform 1s ease-in-out;
+}
+
+#slotMachineContent .window .options .option {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
 }
 
 .footer {
-	height: 150px;
+	height: 100px;
 	width: 100%;
 	left: 0;
 	bottom: 0;
@@ -75,11 +112,23 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 	gap: 0.5rem;
+	background-color: rgba(42, 42, 42, 0.5);
+	overflow: hidden;
 }
 
 .footer span {
-	background-color: rgba(0, 42, 42, 0.5);
-	padding: 0.25rem;
+	background-color: rgba(0, 0, 0, 0.3);
+	color: white;
+	padding: 0.3rem;
 	border-radius: 0.5rem;
+	font-size: 10px;
+}
+
+.footer #votersStats {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
 }

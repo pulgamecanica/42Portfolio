@@ -1,5 +1,28 @@
 {% extends "base.html" %}
 
+{% block customJSBlock %}
+	{% load static %}
+	<script src="{% static 'slotMachine.js' %}"></script>
+{% endblock %}
+
 {% block content %}
-	<h2>HEre goes nothing</h2>
+	<div id="slotMachineContent">
+		<div class="window">
+			<div class="options">
+				
+			</div>
+		</div>
+		<div class="window">
+			<div class="options">
+				
+			</div>
+		</div>
+	</div>
+	<div>
+		<a href="{% url 'login_intra' %}">Login</a>
+	</div>
+{% endblock %}
+
+{% block votersStats %}
+	<div id="votersStats"></div>
 {% endblock %}

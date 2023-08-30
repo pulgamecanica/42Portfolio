@@ -4,12 +4,19 @@
     <meta charset="utf-8">
     <meta name="description" content="42Portfolio, a tool to help 42students generate data. Author: pulgamecanica"> 
     <meta name="robots" content="noindex,nofollow">
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <title>{% block title %}42Portfolio{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="{% static 'd3.js' %}"></script>
     <script src="{% static 'voters.js' %}"></script>
+    {% block customJSBlock %}{% endblock %}
+
 </head>
 
 <body>
@@ -36,12 +43,13 @@
     </div>
 
     <footer class="footer">
+        {% block votersStats %}
+        {% endblock %}
         {% block footer %}
         <span>Open Source</span>
-        <span>Made with ❤️</span>
-        <span>© 2023 - by @pulgamecanica</span>
+        <span>© 2023 | Made with ❤️</span>
         <a href="https://github.com/pulgamecanica/42Portfolio" target="blank">
-            <img src="{% static 'icons/gh.svg' %}" alt="GitHub Loo" height="40px">
+            <img src="{% static 'icons/gh.svg' %}" alt="GitHub Loo" height="30px">
         </a>
         {% endblock %}
     </footer>
