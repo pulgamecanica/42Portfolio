@@ -17,9 +17,11 @@
 			42 = life, the universe & everything
 		</div>
 	</div>
-	<div class="loginContent">
-		<a href="{% url 'login_intra' %}">42Login</a>
-	</div>
+	{% if not request.user.is_authenticated %}
+		<div class="loginContent">
+			<a href="{% url 'login_intra' %}">42Login</a>
+		</div>
+	{% endif %}
 {% endblock %}
 
 {% block votersStats %}
