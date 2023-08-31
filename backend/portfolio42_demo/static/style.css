@@ -92,10 +92,10 @@ body {
 
 .slotMachine #slotMachineContent .opening {
 	position: relative;
-  	width: 100px;
-  	height: 110px;
-  	overflow: hidden;
-  	margin: 5px;
+	width: 100px;
+	height: 110px;
+	overflow: hidden;
+	margin: 5px;
 }
 
 .slotMachine #slotMachineContent .opening .options {
@@ -108,7 +108,7 @@ body {
 	align-items: center;
 	font-size: 4rem;
 	width: 100px;
-  	height: 110px;
+	height: 110px;
 }
 
 .slotMachine #slotMachineMessage {
@@ -120,7 +120,7 @@ body {
 	--text-size: 45px;
 	--border: 4px;
 	--slant: 1em;
-	--color: rgba(120, 232, 252);
+	--color: black;
 }
 
 #content .loginContent a {
