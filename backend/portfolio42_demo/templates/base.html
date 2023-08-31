@@ -16,13 +16,11 @@
     <script src="{% static 'd3.js' %}"></script>
     <script src="{% static 'voters.js' %}"></script>
     {% block customJSBlock %}{% endblock %}
-
 </head>
 
 <body>
-    <div id="background-arena">
-        
-    </div>
+    <div id="background-arena"></div>
+    
     <div class="navbar">
         {% block navbar %}
             {% url 'home' as home_url %}
