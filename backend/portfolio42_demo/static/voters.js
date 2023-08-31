@@ -42,7 +42,7 @@ function Voters() {
 
     this.graphSize = Math.floor(this.svgSize * 0.05);
     this.arcMkr = d3.arc()
-        .innerRadius(Math.floor(this.graphSize * 0.0))
+        .innerRadius(Math.floor(this.graphSize * 0.2))
         .outerRadius(Math.floor(this.graphSize * 0.4))
         .cornerRadius(5)
 }

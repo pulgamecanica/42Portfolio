@@ -1,60 +1,54 @@
-// window.addEventListener( "load", makeSlotMachine );
-// function makeSlotMachine() { 
-//     let smc = d3.select( "#slotMachineContent" );
-//     let counter = 0;
-//     let i = 0;
+function SlotMachine(duration = 1) {
+	this.items = [
+	    '2',
+	    '❌',
+	    '⛄️',
+	    '🦄',
+	    '🍌',
+	    '💩',
+	    '👻',
+	    '😻',
+	    '💵',
+	    '🤡',    
+	    '🦖',
+	    '🍎',
+	    '?',
+	];
+	this.duration = duration;
+	this.openings = d3.selectAll('.sm-opening');
+	this.openingHeight = parseInt(getComputedStyle(this.openings.node()).height, 10);
+}
 
-//     let dt = 4000;
+SlotMachine.prototype = {
+	init: function() {
+		this.openings.selectAll( "div" ).remove();
+		this.openings.append( "div" ).attr( "class", "options" )
+			.attr( "style", `transform: translateY(-${this.openingHeight * (this.items.length - 1)}px);` )
+			.selectAll( "div" ).data( this.items ).enter().append( "div" )
+			.text( d => d ).attr( "class", "option" );
 
-//     smc.selectAll( "svg" ).remove();
+	},
 
-//     let svg = smc.append( "svg" ).attr( "id", "slotMachineSvg" )
-//         .attr( "width", 300 ).attr( "height", 300 );
+	spin: function() {
+		for (opt of this.openings.selectAll( ".option" ).nodes() )
+			opt.style.filter = 'blur(1px)';
+		this.openings.selectAll( ".options" ).attr( "style", `transform: translateY(0px);transition-duration: ${this.duration > 0 ? this.duration : 1}s;` );
+		setTimeout(() => {
+			for (opt of this.openings.selectAll( ".option" ).nodes() )
+			opt.style.filter = 'blur(0px)';
+		}, this.duration * 1000);
+		
+	},
+}
 
-//     data = [
-//         { content: "9", slogan: "Fourty-Nine" },
-//         { content: "♥️", slogan: "For-Love" },
-//         { content: "☮️", slogan: "For-Peace" },
-//         { content: "1❓", slogan: "Fourty-One?" },
-//         { content: "*️⃣", slogan: "For-Everyone" },
-//         { content: "2", slogan: "FOURTY TWO" },
-//     ];
-
-//     svg.selectAll( "text" ).data( data ).enter().append( "rect" )
-//         .attr( "x", d => w * d.x ).attr( "y", d => w * d.y )
-//         .attr( "width", w - 1 ).attr( "height", w - 1 )
-//         .attr( "fill", d => sc(d.val) );
-
-//     function update() {
-
-//         return d3.shuffle( d3.range( n * n ) ).map( i => {
-//             var nb = nbs[ nbs.length * Math.random() | 0 ];
-//             var x = (data[i].x + nb[0] + n) % n;
-//             var y = (data[i].y + nb[1] + n) % n;
-//             data[i].val = data[ y * n + x ].val;
-//         } );
-//     }
-
-//     d3.interval( function() {
-//         update();
-//         svg.selectAll( "text" ).data( data )
-//             .transition().duration(dt).delay(dt)}, dt );
-// }
-
-const items = [
-    '🍭',
-    '❌',
-    '⛄️',
-    '🦄',
-    '🍌',
-    '💩',
-    '👻',
-    '😻',
-    '💵',
-    '🤡',    
-    '🦖',
-    '🍎',
-    '😂',
-    '🖕',
-];
-console.log(items);
+window.addEventListener( "load", () => {
+	let sm = new SlotMachine();
+	sm.init();
+	d3.interval( function() {
+		sm.init();
+    	setTimeout(() => {
+    		sm.spin();
+		}, 1000);
+	}, 4000);
+	
+});

@@ -6,20 +6,19 @@
 {% endblock %}
 
 {% block content %}
-	<div id="slotMachineContent">
-		<div class="window">
-			<div class="options">
-				
+	<div class="slotMachine">
+		<div id="slotMachineContent">
+			<div class="opening">
+				<div class="options"><div class="option">4</div></div>
 			</div>
+			<div class="opening sm-opening"></div>
 		</div>
-		<div class="window">
-			<div class="options">
-				
-			</div>
+		<div id="slotMachineMessage">
+			42 = life, the universe & everything
 		</div>
 	</div>
-	<div>
-		<a href="{% url 'login_intra' %}">Login</a>
+	<div class="loginContent">
+		<a href="{% url 'login_intra' %}">42Login</a>
 	</div>
 {% endblock %}
 
