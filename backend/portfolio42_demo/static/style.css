@@ -1,0 +1,192 @@
+* {
+	font-family: 'Barlow', sans-serif;
+}
+
+html {
+
+}
+
+body {
+	margin: 0;
+	width: 100vw;
+	min-height: 100vh;
+	background-color: #424242;
+	position: relative;
+}
+
+
+.navbar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	width: 90%;
+	gap: 3rem;
+	margin: auto;
+	height: 100px;
+}
+
+.profile-img {
+	border-radius: 50%;
+	width: 80px;
+	height: 80px;
+	padding: 1px;
+	box-shadow: 1px 2px 1px 1px gray;
+	background-color: lightgrey;
+}
+
+.profile-img:hover {
+	background-color: rgba(120, 232, 252);
+	box-shadow: 1px 2px 1px 1px lightgrey;
+}
+
+.logo-img {
+	height: 95px;
+	width: auto;
+}
+
+.logo-img:hover {
+	background-color: gray;
+	border-radius: 1rem;
+	box-shadow: 1px 2px 1px 1px gray;
+	border: 1px rgba(120, 232, 252) solid;
+	opacity: 0.8;
+
+}
+
+#background-arena {
+	position: absolute;
+	z-index: -1;
+	opacity: 0.2;
+	overflow: hidden !important;
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#content {
+	max-width: 800px;
+	margin: auto;
+	min-height: 50vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+}
+
+.slotMachine {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+
+.slotMachine #slotMachineContent,
+.slotMachine #slotMachineMessage {
+	display: flex;
+	background: rgba(242, 242, 242, 0.5);
+	border-radius: 0.5rem;
+}
+
+.slotMachine #slotMachineContent .opening {
+	position: relative;
+	width: 100px;
+	height: 110px;
+	overflow: hidden;
+	margin: 5px;
+}
+
+.slotMachine #slotMachineContent .opening .options {
+	transition: transform 1s ease-in-out;
+}
+
+.slotMachine #slotMachineContent .opening .options .option {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 4rem;
+	width: 100px;
+	height: 110px;
+}
+
+.slotMachine #slotMachineMessage {
+	font-size: 18px;
+	padding: 0.5rem 1rem;
+}
+
+#content .loginContent {
+	--text-size: 45px;
+	--border: 4px;
+	--slant: 1em;
+	--color: black;
+}
+
+#content .loginContent a {
+	display: block;
+	font-size: var(--text-size);
+	padding: 0.4em 1.2em;
+	border: none;
+	cursor: pointer;
+	font-weight: bold;
+	color: var(--color);
+	background: 
+		linear-gradient(to bottom left,var(--color)  50%,#0000 50.1%) top right,
+		linear-gradient(to top   right,var(--color)  50%,#0000 50.1%) bottom left;
+	background-size: calc(var(--slant) + 1.3*var(--border)) calc(var(--slant) + 1.3*var(--border));
+	background-repeat: no-repeat;
+	box-shadow:
+		0 0 0 200px inset var(--s,#0000),
+		0 0 0 var(--border) inset var(--color);
+	transition: color var(--t,0.3s), background-size 0.3s;
+	border-radius: 0.5rem;
+}
+
+#content .loginContent a:focus-visible {
+	outline-offset: calc(-1*var(--border));
+	clip-path: none;
+	background-size: 0 0;
+}
+
+#content .loginContent a:hover,
+#content .loginContent a:active{
+	background-size: 100% 100%;
+	color: #fff;
+}
+
+#content .loginContent a:active {
+  transition: none;
+}
+
+.footer {
+	height: 100px;
+	width: 100%;
+	left: 0;
+	bottom: 0;
+	border-top: 1px gray solid;
+	padding-top: 1rem;
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	background-color: rgba(42, 42, 42, 0.5);
+	overflow: hidden;
+}
+
+.footer span {
+	background-color: rgba(0, 0, 0, 0.3);
+	color: white;
+	padding: 0.3rem;
+	border-radius: 0.5rem;
+	font-size: 10px;
+}
+
+.footer #votersStats {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+}

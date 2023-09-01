@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block customJSBlock %}
+	{% load static %}
+	<script src="{% static 'slotMachine.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+	<div class="slotMachine">
+
+		<div id="slotMachineContent">
+			
+			<div class="opening">
+				<div class="options">
+					<div class="option">4</div>
+				</div>
+			</div>
+
+			<div class="opening sm-opening"></div>
+			
+		</div>
+
+		<div id="slotMachineMessage">
+			42 = life, the universe & everything
+		</div>
+
+	</div>
+
+	{% if not request.user.is_authenticated %}
+		<div class="loginContent">
+			<a href="{% url 'login_intra' %}">42Login</a>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block votersStats %}
+	<div id="votersStats"></div>
+{% endblock %}
