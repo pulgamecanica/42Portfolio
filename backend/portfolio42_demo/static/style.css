@@ -55,7 +55,7 @@ body {
 }
 
 #background-arena {
-	position: absolute;
+	position: fixed;
 	z-index: -1;
 	opacity: 0.2;
 	overflow: hidden !important;
@@ -64,16 +64,6 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-#content {
-	max-width: 800px;
-	margin: auto;
-	min-height: 50vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-around;
 }
 
 .slotMachine {
@@ -114,6 +104,17 @@ body {
 .slotMachine #slotMachineMessage {
 	font-size: 18px;
 	padding: 0.5rem 1rem;
+}
+
+#content {
+	max-width: 800px;
+	margin: auto;
+	min-height: 50vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	padding-bottom: 125px;
 }
 
 #content .loginContent {

@@ -7,4 +7,4 @@ def home_page(request):
 def profile(request):
 	if not request.user.is_authenticated:
 		return redirect("login_intra")
-	return HttpResponse("Profile: %s" % request.user);
+	return render(request, "profile.html")

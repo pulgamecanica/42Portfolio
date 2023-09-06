@@ -7,7 +7,7 @@ services:
     networks:
       - database-network
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:${POSTGRES_DATA_PATH}
     ports:
       - ${POSTGRES_HOST_PORT}:${POSTGRES_HOST_PORT}
     environment:
