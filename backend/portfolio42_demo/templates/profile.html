@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block customCSSBlock %}
+	{% load static %}
+    <link rel="stylesheet" href="{% static 'portfolio.css' %}">	
+{% endblock %}
+
+{% block content %}
+<nav class="portfolio-nav">
+	<div class="vertical-flex flex-start">
+		<img src="{% static 'icons/42light.svg' %}" alt="42 Logo" class="portfolio-nav-logo">
+		<span class="portfolio-nav-title">{{ request.user.first_name }}</span>
+		<span class="portfolio-nav-subtitle">{{ request.user.projects.count }} Projects</span>
+	</div>
+	<div>
+		<img src="{{ request.user.image_url }}" alt="user img" class="profile-img">
+	</div>
+	<div class="vertical-flex flex-end">
+		<span class="portfolio-nav-subtitle">Started at 8/2/2021</span>
+		<span class="portfolio-nav-title">
+			{% for cursus in request.user.cursus.all %}
+				{% if forloop.last %}
+					{{ cursus.name }}
+				{% else %}
+					{{ cursus.name }},
+    			{% endif %}
+			{% endfor %}
+		</span>
+	</div>
+</nav>
+
+<div class="timeline">
+{% for project in request.user.projects.all %}
+	{% if forloop.counter0|divisibleby:2 %}
+	<div class="container left">
+		<div class="timeline-content">
+			<div class="timeline-content-title">
+				{{ project.name }}
+			</div>
+      		<p class="timeline-content-description">
+      			Description for this project:
+      			{{ project.name }}
+      			{{ project.skills.all }}
+      		</p>
+			<div class="timeline-content-tags">
+				<span class="tag">Web</span>
+				<span class="tag">NodeJS</span>
+				<span class="tag">Vue3</span>
+				<span class="tag">React</span>
+				<span class="tag">TypeScript</span>
+			</div>
+		</div>
+	</div>
+	{% else %}
+	<div class="container right">
+		<div class="timeline-content">
+			<div class="timeline-content-title">
+				{{ project.name }}
+			</div>
+	      	<p class="timeline-content-description">
+	      		{{ project.name }}
+	      	</p>
+			<div class="timeline-content-tags">
+				<span class="tag">Docker</span>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+{% endfor %}
+</div>
+
+	
+{% endblock %}
