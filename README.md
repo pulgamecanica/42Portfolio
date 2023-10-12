@@ -68,9 +68,10 @@ npm start
 
 ### Contributors:
 
-> <a href="https://github.com/pulgamecanica/42Portfolio/graphs/contributors"><img src="https://contrib.rocks/image?repo=pulgamecanica/42Portfolio" /></a>
->
-> Made with [contrib.rocks](https://contrib.rocks).
->
+<a href="https://github.com/pulgamecanica/42Portfolio/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=pulgamecanica/42Portfolio"/>
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
 
 ***
