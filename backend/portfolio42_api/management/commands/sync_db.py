@@ -67,7 +67,7 @@ def update_from_db(api : Api42, table, endpoint : str, func : callable, is_basic
             json = api.get(ep)
         except ApiException as e:
             logging.error(e)
-            break
+            continue
 
         if (is_basic):
             func(json)
