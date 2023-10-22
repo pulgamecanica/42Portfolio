@@ -36,7 +36,7 @@ def callback_intra(request):
 		'redirect_uri': 'http://localhost:%s/api/auth/callback_intra' % os.environ.get('BACKEND_PORT'),
 	}
 	r = requests.post(get_token_path, data=data)
-	
+
 	"""
 		Check if request was succesfull, if not,
 		return an error Response with the reason
@@ -53,7 +53,7 @@ def callback_intra(request):
 		headers = {"Authorization": "Bearer %s" % token}
 	except:
 		return HttpResponse("[Error] Reason: %s" % intra_fail_reason("json"));
-	
+
 	"""
 		Check if request was succesfull, if not,
 		return an error Response with the reason
@@ -71,11 +71,11 @@ def callback_intra(request):
 		"""
 			TODO
 			Missing image_url, intra_url, check other
-			stuff that might be predefined... 
+			stuff that might be predefined...
 		"""
 		user, created = User.objects.get_or_create(
 	    		intra_id=user_response_json['id'],
-	    		intra_username=user_response_json['login'],
+	    		username=user_response_json['login'],
 	    		first_name=user_response_json['first_name'],
 	    		last_name=user_response_json['last_name'],
 	    		email=user_response_json['email'],
