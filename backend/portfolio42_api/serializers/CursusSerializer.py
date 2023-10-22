@@ -17,11 +17,11 @@ class ProjectSerializer(serializers.ModelSerializer):
                   'description',
                   'exam',
                   'solo']
-        
+
 class CursusUserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='id_user.id')
     intra_id = serializers.IntegerField(source='id_user.intra_id')
-    intra_username = serializers.CharField(source='id_user.intra_username')
+    username = serializers.CharField(source='id_user.username')
     first_name = serializers.CharField(source='id_user.first_name')
     last_name = serializers.CharField(source='id_user.last_name')
     email = serializers.EmailField(source='id_user.email')
@@ -33,7 +33,7 @@ class CursusUserSerializer(serializers.ModelSerializer):
         model = CursusUser
         fields = ['id',
                   'intra_id',
-                  'intra_username',
+                  'username',
                   'first_name',
                   'last_name',
                   'email',

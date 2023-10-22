@@ -28,7 +28,6 @@ def log_update(t, is_created):
 
 # User model
 class User(AbstractUser, IntraBaseModel):
-    intra_username = models.CharField(max_length=30, unique=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=130)
@@ -38,11 +37,10 @@ class User(AbstractUser, IntraBaseModel):
 
     cursus = models.ManyToManyField('Cursus', through='CursusUser', related_name='users')
 
-    REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url', 'username']
-    USERNAME_FIELD = "intra_username"
+    REQUIRED_FIELDS = ["email", "intra_id", "first_name", "last_name", 'intra_url']
 
     def __str__(self):
-        return f"({self.intra_username})"
+        return f"({self.username})"
 
     def update(user):
         try:
@@ -51,7 +49,7 @@ class User(AbstractUser, IntraBaseModel):
             logging.error(f"Could not find User with (intra_id: {user['id']})")
             return None
 
-        u.intra_username = user['login']
+        u.username = user['login']
         u.first_name = user['first_name']
         u.last_name = user['last_name']
         u.email = user['email']

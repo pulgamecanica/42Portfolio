@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import User, Project, Skill, Cursus
 
 class UserAdmin(admin.ModelAdmin):
-	search_fields = ['intra_username', 'first_name', 'last_name', 'email', 'intra_id']
+	search_fields = ['username', 'first_name', 'last_name', 'email', 'intra_id']
 
 class ProjectAdmin(admin.ModelAdmin):
 	search_fields = ['name', 'description', 'intra_id']
