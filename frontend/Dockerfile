@@ -11,7 +11,7 @@ COPY . /app/
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
 # RUN npm ci
 
-RUN npm install -g
+RUN npm install
 
 RUN export PATH=$PATH:/app/node_modules/.bin
 
