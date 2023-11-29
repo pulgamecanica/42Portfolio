@@ -1,4 +1,4 @@
-FROM node:16-alpine 
+FROM node:16-alpine
 
 # Set the working directory to /app inside the container
 WORKDIR /app
@@ -11,7 +11,9 @@ COPY . /app/
 # Install dependencies (npm ci makes sure the exact versions in the lockfile gets installed)
 # RUN npm ci
 
-RUN npm install
+RUN npm install -g
+
+RUN export PATH=$PATH:/app/node_modules/.bin
 
 # Start the app
 CMD [ "npm", "run", "start" ]
