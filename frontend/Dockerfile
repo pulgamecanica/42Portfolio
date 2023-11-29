@@ -1,4 +1,4 @@
-FROM node:16-alpine 
+FROM node:16-alpine
 
 # Set the working directory to /app inside the container
 WORKDIR /app
@@ -12,6 +12,8 @@ COPY . /app/
 # RUN npm ci
 
 RUN npm install
+
+RUN export PATH=$PATH:/app/node_modules/.bin
 
 # Start the app
 CMD [ "npm", "run", "start" ]
