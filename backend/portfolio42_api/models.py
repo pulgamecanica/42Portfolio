@@ -90,7 +90,6 @@ class Project(IntraBaseModel):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=2000)
     exam = models.BooleanField(default=False)
-    solo = models.BooleanField(default=True)
 
     users = models.ManyToManyField('User', through='ProjectUser', related_name='projects')
     cursus = models.ManyToManyField('cursus', through='ProjectCursus', related_name='projects')
@@ -110,7 +109,6 @@ class Project(IntraBaseModel):
                 p.description = project['slug']
 
         p.exam = project['exam']
-        p.solo = False # todo: REMOVE THIS
         p.save()
 
         log_update(p, created)
@@ -146,6 +144,7 @@ class ProjectUser(IntraBaseModel):
     grade = models.IntegerField()
     finished = models.BooleanField(default=False)
     finished_at = models.DateTimeField()
+    solo = models.BooleanField(default=True)
 
     def __str__(self):
         return f"(user: {self.id_user}, project: {self.id_project})"
@@ -164,6 +163,7 @@ class ProjectUser(IntraBaseModel):
                                                                   'grade': 0})
 
         pu.finished = projectuser['validated?'] if projectuser['validated?'] is not None else False
+        pu.solo = True if len(projectuser['teams'][0]['users']) == 1 else False
         if pu.finished:
             d = timezone.make_aware(datetime.strptime(projectuser['updated_at'], '%Y-%m-%dT%H:%M:%S.%fZ'), timezone.utc)
             pu.finished_at = d
