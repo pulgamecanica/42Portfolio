@@ -118,7 +118,6 @@ class Cursus(IntraBaseModel):
 # Project model
 class Project(IntraBaseModel):
     name = models.CharField(max_length=50)
-    description = models.TextField(max_length=2000)
     exam = models.BooleanField(default=False)
     solo = models.BooleanField(default=True)
 

@@ -43,7 +43,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         for lang in langs:
             try:
                 pt = ProjectTranslation.objects.get(id_language__name_short=lang,id_project=instance)
-                print(f"found correct ${lang}")
                 instance_data['description'] = pt.description
                 instance_data['description_bonus'] = pt.description_bonus
                 instance_data['append_bonus'] = pt.bonus_append
