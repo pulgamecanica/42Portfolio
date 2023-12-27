@@ -4,6 +4,7 @@ from django.db import models
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 import logging
 
 
@@ -280,3 +281,31 @@ class CursusUserSkill(models.Model):
         log_update(cus, created)
 
         return cus
+
+
+# Translations
+
+class TranslationLanguage(models.Model):
+    # Validator: `default` or full capitals, 2 sets of letters seperated by a `-` e.g EN-US or EN-AUS
+    name_short = models.CharField(unique=True, max_length=8, validators=[RegexValidator("([A-Z]+-[A-Z]+)|(default)")])
+    name_full = models.CharField(unique=True, max_length=64) # For example: English (United States)
+
+    def __str__(self):
+        return f"(Translation Language: {self.name_short})"
+
+class ProjectTranslation(models.Model):
+    id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    id_language = models.ForeignKey('TranslationLanguage', on_delete=models.CASCADE)
+
+    # The description of the project
+    description = models.TextField(max_length=2000)
+    # Description for the bonus part of the project
+    description_bonus = models.TextField(max_length=2000)
+
+    # If the bonus description appends (true) or replaces (false)
+    bonus_append = models.BooleanField(default=True)
+
+    updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+
+    def __str__(self):
+        return f"(Translation Language: {self.name_short})"
