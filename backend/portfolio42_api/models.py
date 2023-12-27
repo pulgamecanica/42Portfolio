@@ -308,4 +308,4 @@ class ProjectTranslation(models.Model):
     updated_at = models.DateTimeField(auto_created=True, auto_now=True)
 
     def __str__(self):
-        return f"(Translation Language: {self.name_short})"
+        return f"(Project Translation: {self.id_project.name}:{self.id_language.name_short})"
