@@ -4,8 +4,38 @@ from django.db import models
 from django.core.serializers import serialize
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 import logging
 
+
+# Translations
+
+class TranslationLanguage(models.Model):
+    # Validator: `default` or full capitals, 2 sets of letters seperated by a `-` e.g EN-US or EN-AUS
+    name_short = models.CharField(unique=True, max_length=8, validators=[RegexValidator("([A-Z]+-[A-Z]+)|(default)")])
+    name_full = models.CharField(unique=True, max_length=64) # For example: English (United States)
+
+    def __str__(self):
+        return f"(Translation Language: {self.name_short})"
+
+class ProjectTranslation(models.Model):
+    id_project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    id_language = models.ForeignKey('TranslationLanguage', on_delete=models.CASCADE)
+
+    # The description of the project
+    description = models.TextField(max_length=2000)
+    # Description for the bonus part of the project
+    description_bonus = models.TextField(max_length=2000)
+
+    # If the bonus description appends (true) or replaces (false)
+    bonus_append = models.BooleanField(default=True)
+
+    updated_at = models.DateTimeField(auto_created=True, auto_now=True)
+
+    def __str__(self):
+        return f"(Project Translation: {self.id_project.name}:{self.id_language.name_short})"
+
+# Intra models
 
 class IntraBaseModel(models.Model):
     intra_id = models.IntegerField(unique=True, db_index=True)
@@ -88,7 +118,6 @@ class Cursus(IntraBaseModel):
 # Project model
 class Project(IntraBaseModel):
     name = models.CharField(max_length=50)
-    description = models.TextField(max_length=2000)
     exam = models.BooleanField(default=False)
 
     users = models.ManyToManyField('User', through='ProjectUser', related_name='projects')
@@ -110,6 +139,16 @@ class Project(IntraBaseModel):
 
         p.exam = project['exam']
         p.save()
+
+        # Update default translation
+        # Would love to remove the fetching of the default translation every time a project updates but do not see how
+        def_translation, _ = TranslationLanguage.objects.get_or_create(name_short='default')
+        p_trans, _ = ProjectTranslation.objects.get_or_create(id_language=def_translation, id_project=p)
+        try:
+            p_trans.description = project['description']
+        except:
+            p_trans.description = project['slug']
+        p_trans.save()
 
         log_update(p, created)
 
@@ -280,3 +319,4 @@ class CursusUserSkill(models.Model):
         log_update(cus, created)
 
         return cus
+
